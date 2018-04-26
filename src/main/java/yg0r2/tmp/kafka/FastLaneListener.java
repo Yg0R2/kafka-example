@@ -1,5 +1,6 @@
 package yg0r2.tmp.kafka;
 
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,23 +15,14 @@ public class FastLaneListener {
 
     @Autowired
     private RequestProcessor requestProcessor;
-    @Autowired
-    private SlowLaneResubmitProcessor slowLaneResubmitProcessor;
 
     @KafkaListener(id = "fastLaneListener", containerFactory = "kafkaFastLaneContainerFactory", topics = "${kafka.fastLane.topic}")
-    public void receive(String payload, Acknowledgment acknowledgment) {
-        LOGGER.info("received payload='{}'", payload);
+    public void receive(ConsumerRecord<String, String> record, Acknowledgment acknowledgment) {
+        LOGGER.info("Record consumed from topic={} partition={} offset={}", record.topic(), record.partition(), record.offset());
 
-        try {
-            requestProcessor.handleRequest(payload);
-        } catch (Throwable throwable) {
-            LOGGER.error("resubmit slowLane");
-
-            slowLaneResubmitProcessor.resubmit(payload);
-        }
+        requestProcessor.handleRequest(record.value());
 
         LOGGER.info("Acknowledgment");
-
         acknowledgment.acknowledge();
     }
 

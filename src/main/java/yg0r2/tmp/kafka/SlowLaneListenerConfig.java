@@ -17,21 +17,16 @@ import org.springframework.kafka.listener.AbstractMessageListenerContainer;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.listener.ErrorHandler;
 import org.springframework.retry.RetryPolicy;
-import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.retry.backoff.BackOffPolicy;
-import org.springframework.retry.backoff.ExponentialBackOffPolicy;
 import org.springframework.retry.backoff.FixedBackOffPolicy;
-import org.springframework.retry.backoff.ObjectWaitSleeper;
-import org.springframework.retry.backoff.ThreadWaitSleeper;
 import org.springframework.retry.policy.CircuitBreakerRetryPolicy;
 import org.springframework.retry.policy.MapRetryContextCache;
-import org.springframework.retry.policy.NeverRetryPolicy;
 import org.springframework.retry.policy.RetryContextCache;
 import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 
 @Configuration
-@EnableKafka
+//@EnableKafka
 //@EnableRetry
 public class SlowLaneListenerConfig {
 
@@ -43,15 +38,9 @@ public class SlowLaneListenerConfig {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         factory.getContainerProperties().setAckMode(AbstractMessageListenerContainer.AckMode.MANUAL_IMMEDIATE);
-        factory.getContainerProperties().setErrorHandler(errorHandler());
         factory.setRetryTemplate(retryTemplate());
 
         return factory;
-    }
-
-    @Bean
-    public ErrorHandler errorHandler() {
-        return new yg0r2.tmp.kafka.ErrorHandler();
     }
 
     private RetryTemplate retryTemplate() {

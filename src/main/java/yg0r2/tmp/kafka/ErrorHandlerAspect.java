@@ -1,6 +1,7 @@
 package yg0r2.tmp.kafka;
 
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +17,7 @@ public class ErrorHandlerAspect {
         this.slowLaneResubmitProcessor = slowLaneResubmitProcessor;
     }
 
-    //@Around("execution(* yg0r2.tmp.kafka.RequestProcessor.*(..))")
+    @Around("execution(* yg0r2.tmp.kafka.RequestProcessor.*(..))")
     public void executeDefendedRequest(ProceedingJoinPoint proceedingJoinPoint) {
         LOGGER.info("Error happened.");
 
@@ -25,10 +26,8 @@ public class ErrorHandlerAspect {
         } catch (Throwable throwable) {
             LOGGER.error("resubmit slowLane");
 
-            //slowLaneResubmitProcessor.resubmit((String) proceedingJoinPoint.getArgs()[0]);
+            slowLaneResubmitProcessor.resubmit((String) proceedingJoinPoint.getArgs()[0]);
         }
-
-        //proceedingJoinPoint.set$AroundClosure();
     }
 
 }
