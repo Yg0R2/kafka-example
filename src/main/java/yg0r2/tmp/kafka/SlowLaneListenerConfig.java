@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,21 +27,29 @@ import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 
 @Configuration
-//@EnableKafka
-//@EnableRetry
+@EnableKafka
 public class SlowLaneListenerConfig {
 
     @Value("${kafka.bootstrap-servers}")
     private String bootstrapServers;
 
+    @Autowired
+    private SlowLaneResubmitProcessor slowLaneResubmitProcessor;
+
     @Bean
     public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>> kafkaSlowLaneContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
+        factory.setConcurrency(2);
         factory.getContainerProperties().setAckMode(AbstractMessageListenerContainer.AckMode.MANUAL_IMMEDIATE);
+        factory.getContainerProperties().setErrorHandler(errorHandler());
         factory.setRetryTemplate(retryTemplate());
 
         return factory;
+    }
+
+    private ErrorHandler errorHandler() {
+        return new yg0r2.tmp.kafka.ErrorHandler(slowLaneResubmitProcessor);
     }
 
     private RetryTemplate retryTemplate() {
@@ -59,19 +68,14 @@ public class SlowLaneListenerConfig {
     }
 
     private BackOffPolicy backOffPolicy() {
-        /*ExponentialBackOffPolicy backOffPolicy = new ExponentialBackOffPolicy();
-        backOffPolicy.setInitialInterval(3000L);
-        backOffPolicy.setMultiplier(1.5);*/
-
         FixedBackOffPolicy backOffPolicy = new FixedBackOffPolicy();
+
         backOffPolicy.setBackOffPeriod(2000L);
 
         return backOffPolicy;
     }
 
     private RetryPolicy retryPolicy() {
-        //return new NeverRetryPolicy();
-        //return new SimpleRetryPolicy(4);
         return new CircuitBreakerRetryPolicy(new SimpleRetryPolicy(3));
     }
 
