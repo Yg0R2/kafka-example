@@ -1,0 +1,9 @@
+kafka:
+  bootstrap-servers: ${spring.embedded.kafka.brokers}
+  fastLane:
+    topic: tmp-fastLane
+  slowLane:
+    topic: tmp-slowLane
+#  bootstrap-servers: localhost:9092
+#  topic:
+#    helloworld: helloworld.t
