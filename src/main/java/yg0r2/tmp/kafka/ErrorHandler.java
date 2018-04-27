@@ -19,7 +19,9 @@ public class ErrorHandler implements org.springframework.kafka.listener.ErrorHan
 
     @Override
     public void handle(Exception thrownException, ConsumerRecord<?, ?> data) {
-        LOGGER.info("Error happened; topic={} partition={} offset={}", data.topic(), data.partition(), data.offset());
+        LOGGER.info("Error happened {}", thrownException.getMessage());
+
+        LOGGER.info("data: {}", data);
 
         slowLaneResubmitProcessor.resubmit((String) data.value());
     }

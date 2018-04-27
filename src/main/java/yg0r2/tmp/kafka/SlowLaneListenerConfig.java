@@ -41,8 +41,9 @@ public class SlowLaneListenerConfig {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         factory.setConcurrency(2);
-        factory.getContainerProperties().setAckMode(AbstractMessageListenerContainer.AckMode.MANUAL_IMMEDIATE);
+        factory.getContainerProperties().setAckMode(AbstractMessageListenerContainer.AckMode.MANUAL);
         factory.getContainerProperties().setErrorHandler(errorHandler());
+        //factory.getContainerProperties().setPollTimeout(5000L);
         factory.setRetryTemplate(retryTemplate());
 
         return factory;

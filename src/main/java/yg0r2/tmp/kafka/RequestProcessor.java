@@ -24,8 +24,6 @@ public class RequestProcessor {
         if (counter < 5) {
             COUNTER_MAP.put(payload, ++counter);
 
-            LOGGER.error("RuntimeException");
-
             throw new RuntimeException("haha");
         }
 
