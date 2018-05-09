@@ -1,5 +1,7 @@
 package yg0r2.tmp.kafka;
 
+import java.util.List;
+
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,14 +19,18 @@ public class SlowLaneListener {
     private RequestProcessor requestProcessor;
 
     @KafkaListener(id = "slowLaneListener", containerFactory = "kafkaSlowLaneContainerFactory", topics = "${kafka.slowLane.topic}")
-    public void receive(ConsumerRecord<String, String> record, Acknowledgment acknowledgment) {
+    public void receive(List<ConsumerRecord<String, String>> records, Acknowledgment acknowledgment) {
+        records.stream().forEach(this::processRecord);
+
+        LOGGER.info("Acknowledgment");
+        acknowledgment.acknowledge();
+    }
+
+    private void processRecord(ConsumerRecord<String, String> record) {
         LOGGER.info("Record consumed from topic={} partition={} offset={} payload={}",
             record.topic(), record.partition(), record.offset(), record.value());
 
         requestProcessor.handleRequest(record.value());
-
-        LOGGER.info("Acknowledgment");
-        acknowledgment.acknowledge();
     }
 
 }

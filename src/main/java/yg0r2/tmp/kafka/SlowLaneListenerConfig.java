@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,31 +15,15 @@ import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.AbstractMessageListenerContainer;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
-import org.springframework.kafka.listener.ErrorHandler;
-import org.springframework.retry.RetryPolicy;
-import org.springframework.retry.backoff.BackOffPolicy;
-import org.springframework.retry.backoff.FixedBackOffPolicy;
-import org.springframework.retry.policy.CircuitBreakerRetryPolicy;
-import org.springframework.retry.policy.MapRetryContextCache;
-import org.springframework.retry.policy.RetryContextCache;
-import org.springframework.retry.policy.SimpleRetryPolicy;
-import org.springframework.retry.support.RetryTemplate;
 
 @Configuration
 @EnableKafka
 public class SlowLaneListenerConfig {
 
-    @Value("${kafka.slowLane.backOffPeriod}")
-    private long backOffPeriod;
     @Value("${kafka.bootstrap-servers}")
     private String bootstrapServers;
     @Value("${kafka.groupId}")
     private String groupId;
-    @Value("${kafka.slowLane.retryMaxAttempts}")
-    private int retryMaxAttempts;
-
-    @Autowired
-    private SlowLaneResubmitProcessor slowLaneResubmitProcessor;
 
     @Bean
     public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>> kafkaSlowLaneContainerFactory() {
@@ -49,41 +32,9 @@ public class SlowLaneListenerConfig {
         factory.setConsumerFactory(consumerFactory());
         factory.setConcurrency(5);
         factory.getContainerProperties().setAckMode(AbstractMessageListenerContainer.AckMode.MANUAL_IMMEDIATE);
-        factory.getContainerProperties().setAckOnError(true);
-        factory.getContainerProperties().setErrorHandler(errorHandler());
-        factory.setRetryTemplate(retryTemplate());
+        factory.setBatchListener(true);
 
         return factory;
-    }
-
-    private ErrorHandler errorHandler() {
-        return new yg0r2.tmp.kafka.ErrorHandler(slowLaneResubmitProcessor);
-    }
-
-    private RetryTemplate retryTemplate() {
-        RetryTemplate retryTemplate = new RetryTemplate();
-
-        retryTemplate.setRetryPolicy(retryPolicy());
-        retryTemplate.setRetryContextCache(retryContextCache());
-        retryTemplate.setBackOffPolicy(backOffPolicy());
-
-        return retryTemplate;
-    }
-
-    private RetryContextCache retryContextCache() {
-        return new MapRetryContextCache();
-    }
-
-    private BackOffPolicy backOffPolicy() {
-        FixedBackOffPolicy backOffPolicy = new FixedBackOffPolicy();
-
-        backOffPolicy.setBackOffPeriod(backOffPeriod);
-
-        return backOffPolicy;
-    }
-
-    private RetryPolicy retryPolicy() {
-        return new CircuitBreakerRetryPolicy(new SimpleRetryPolicy(retryMaxAttempts));
     }
 
     private ConsumerFactory<String, String> consumerFactory() {
