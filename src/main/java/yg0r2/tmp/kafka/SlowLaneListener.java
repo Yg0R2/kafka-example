@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -21,11 +23,8 @@ public class SlowLaneListener {
 
     @KafkaListener(id = "slowLaneListener", containerFactory = "kafkaSlowLaneContainerFactory", topics = "${kafka.slowLane.topic}")
     public void receive(ConsumerRecord<String, String> record, Acknowledgment acknowledgment) {
-        LOGGER.info("Record consumed from topic={} partition={} offset={} payload={}", record.topic(), record.partition(), record.offset(), record.value());
-
-        if (record.timestamp() > Timestamp.valueOf(LocalDateTime.now()).getTime()) {
-            throw new RuntimeException("too early");
-        }
+        LOGGER.info("Record consumed from topic={} partition={} offset={} payload={}",
+            record.topic(), record.partition(), record.offset(), record.value());
 
         requestProcessor.handleRequest(record.value());
 
