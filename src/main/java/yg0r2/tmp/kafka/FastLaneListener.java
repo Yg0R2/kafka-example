@@ -20,7 +20,8 @@ public class FastLaneListener {
 
     @KafkaListener(id = "fastLaneListener", containerFactory = "kafkaFastLaneContainerFactory", topics = "${kafka.fastLane.topic}")
     public void receive(ConsumerRecord<String, String> record, Acknowledgment acknowledgment) {
-        LOGGER.info("Record consumed from topic={} partition={} offset={} payload={}", record.topic(), record.partition(), record.offset(), record.value());
+        LOGGER.info("Record consumed from topic={} partition={} offset={} payload={}",
+            record.topic(), record.partition(), record.offset(), record.value());
 
         try {
             requestProcessor.handleRequest(record.value());

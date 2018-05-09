@@ -21,10 +21,7 @@ public class SlowLaneResubmitProcessor {
     }
 
     public void resubmit(ConsumerRecord<?, ?> record) {
-        RecordHeaders recordHeaders = new RecordHeaders();
-
-        ProducerRecord producerRecord =
-            new ProducerRecord<>(record.topic(), null, record.timestamp(), null, record.value(), recordHeaders);
+        ProducerRecord producerRecord = new ProducerRecord<>(record.topic(), record.value());
 
         sender.send(producerRecord);
     }

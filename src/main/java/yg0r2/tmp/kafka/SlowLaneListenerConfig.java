@@ -12,13 +12,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.KafkaListenerContainerFactory;
-import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.AbstractMessageListenerContainer;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.listener.ErrorHandler;
-import org.springframework.kafka.support.DefaultKafkaHeaderMapper;
 import org.springframework.retry.RetryPolicy;
 import org.springframework.retry.backoff.BackOffPolicy;
 import org.springframework.retry.backoff.FixedBackOffPolicy;
@@ -32,10 +30,14 @@ import org.springframework.retry.support.RetryTemplate;
 @EnableKafka
 public class SlowLaneListenerConfig {
 
+    @Value("${kafka.slowLane.backOffPeriod}")
+    private long backOffPeriod;
     @Value("${kafka.bootstrap-servers}")
     private String bootstrapServers;
-    @Value("${kafka.groupId")
+    @Value("${kafka.groupId}")
     private String groupId;
+    @Value("${kafka.slowLane.retryMaxAttempts}")
+    private int retryMaxAttempts;
 
     @Autowired
     private SlowLaneResubmitProcessor slowLaneResubmitProcessor;
@@ -43,13 +45,13 @@ public class SlowLaneListenerConfig {
     @Bean
     public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>> kafkaSlowLaneContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
+
         factory.setConsumerFactory(consumerFactory());
-        factory.setConcurrency(2);
-        factory.getContainerProperties().setAckMode(AbstractMessageListenerContainer.AckMode.MANUAL);
-        //factory.getContainerProperties().setAckOnError(true);
+        factory.setConcurrency(5);
+        factory.getContainerProperties().setAckMode(AbstractMessageListenerContainer.AckMode.MANUAL_IMMEDIATE);
+        factory.getContainerProperties().setAckOnError(true);
         factory.getContainerProperties().setErrorHandler(errorHandler());
-        //factory.getContainerProperties().setPollTimeout(5000L);
-        //factory.setRetryTemplate(retryTemplate());
+        factory.setRetryTemplate(retryTemplate());
 
         return factory;
     }
@@ -65,7 +67,6 @@ public class SlowLaneListenerConfig {
         retryTemplate.setRetryContextCache(retryContextCache());
         retryTemplate.setBackOffPolicy(backOffPolicy());
 
-
         return retryTemplate;
     }
 
@@ -76,13 +77,13 @@ public class SlowLaneListenerConfig {
     private BackOffPolicy backOffPolicy() {
         FixedBackOffPolicy backOffPolicy = new FixedBackOffPolicy();
 
-        backOffPolicy.setBackOffPeriod(2000L);
+        backOffPolicy.setBackOffPeriod(backOffPeriod);
 
         return backOffPolicy;
     }
 
     private RetryPolicy retryPolicy() {
-        return new CircuitBreakerRetryPolicy(new SimpleRetryPolicy(3));
+        return new CircuitBreakerRetryPolicy(new SimpleRetryPolicy(retryMaxAttempts));
     }
 
     private ConsumerFactory<String, String> consumerFactory() {
@@ -105,15 +106,10 @@ public class SlowLaneListenerConfig {
 
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
 
-        props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, 1000);
-        props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 3000);
+        props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, 20000);
+        props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 60000);
 
         return props;
-    }
-
-    @Bean
-    public DefaultKafkaHeaderMapper headerMapper(){
-        return new DefaultKafkaHeaderMapper();
     }
 
 }

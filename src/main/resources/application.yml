@@ -5,6 +5,8 @@ kafka:
     topic: tmp-fastLane
   slowLane:
     topic: tmp-slowLane
+    backOffPeriod: 2000
+    retryMaxAttempts: 3
 #  bootstrap-servers: localhost:9092
 #  topic:
 #    helloworld: helloworld.t

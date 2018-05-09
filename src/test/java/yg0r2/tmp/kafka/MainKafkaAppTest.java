@@ -18,22 +18,19 @@ public class MainKafkaAppTest {
     private static final String SLOW_LANE_TOPIC = "tmp-slowLane";
 
     @ClassRule
-    public static KafkaEmbedded embeddedKafka = new KafkaEmbedded(2, true, 3, FAST_LANE_TOPIC, SLOW_LANE_TOPIC);
+    public static KafkaEmbedded embeddedKafka = new KafkaEmbedded(5, true, 3, FAST_LANE_TOPIC, SLOW_LANE_TOPIC);
 
     @Autowired
     private Sender sender;
-    @Autowired
-    private TestConsumerListener testConsumerListener;
 
     @Test
     public void testReceive() throws Exception {
+        Thread.sleep(5000);
+
         sender.send(FAST_LANE_TOPIC, "000000000000");
         sender.send(FAST_LANE_TOPIC, "111111111111");
-//        sender.send(FAST_LANE_TOPIC, "222222222222");
-//        sender.send(FAST_LANE_TOPIC, "333333333333");
-
-
-        //testConsumerListener.runConsumer();
+        sender.send(FAST_LANE_TOPIC, "222222222222");
+        sender.send(FAST_LANE_TOPIC, "333333333333");
 
         Thread.sleep(60000);
     }
