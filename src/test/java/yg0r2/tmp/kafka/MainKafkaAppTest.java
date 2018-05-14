@@ -25,7 +25,7 @@ public class MainKafkaAppTest {
 
     @Test
     public void testReceive() throws Exception {
-        Thread.sleep(5000);
+        Thread.sleep(1000);
 
         sender.send(FAST_LANE_TOPIC, "000000000000");
         sender.send(FAST_LANE_TOPIC, "111111111111");

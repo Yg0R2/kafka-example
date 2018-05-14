@@ -1,46 +1,51 @@
 package yg0r2.tmp.kafka;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.kafka.annotation.EnableKafka;
-import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
-import org.springframework.kafka.config.KafkaListenerContainerFactory;
-import org.springframework.kafka.core.ConsumerFactory;
-import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.listener.AbstractMessageListenerContainer;
-import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
+import org.springframework.context.annotation.Scope;
 
 @Configuration
-@EnableKafka
-public class FastLaneListenerConfig {
+public class SlowLaneBookingEmailRequestConsumerConfiguration {
 
     @Value("${kafka.bootstrap-servers}")
     private String bootstrapServers;
     @Value("${kafka.groupId}")
     private String groupId;
+    @Value("${kafka.slowLane.topic}")
+    private String topic;
+    @Value("${kafka.slowLane.poll.timeout.ms}")
+    private long pollTimeout;
 
-    @Bean
-    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>> kafkaFastLaneContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    @Autowired
+    @Qualifier(value = "slowLaneBookingEmailRequestProcessor")
+    private BookingEmailRequestProcessor slowLaneBookingEmailRequestProcessor;
 
-        factory.setConsumerFactory(consumerFactory());
-        factory.getContainerProperties().setAckMode(AbstractMessageListenerContainer.AckMode.MANUAL_IMMEDIATE);
-        factory.setBatchListener(true);
-
-        return factory;
+    @Bean("slowLaneBookingEmailRequestConsumer")
+    public BookingEmailRequestConsumer slowLaneBookingEmailRequestConsumer() {
+        return new BookingEmailRequestConsumer(slowLaneBookingEmailRequestProcessor, slowLaneConsumer(), topic, pollTimeout);
     }
 
-    private ConsumerFactory<String, String> consumerFactory() {
-        return new DefaultKafkaConsumerFactory<>(fastLaneConfigs());
+    private Consumer<String, String> slowLaneConsumer() {
+        Consumer<String, String> consumer = new KafkaConsumer<>(consumerConfigs());
+
+        consumer.subscribe(Collections.singletonList(topic));
+
+        return consumer;
     }
 
-    private Map<String, Object> fastLaneConfigs() {
+    private Map<String, Object> consumerConfigs() {
         Map<String, Object> props = new HashMap<>();
 
         // list of host:port pairs used for establishing the initial connections to the Kafka cluster
@@ -58,6 +63,4 @@ public class FastLaneListenerConfig {
 
         return props;
     }
-
-
 }
