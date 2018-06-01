@@ -5,16 +5,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
+import yg0r2.tmp.kafka.producer.DefaultSlowLaneBookingEmailRequestSubmitter;
+
 @Configuration
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 public class AspectConfiguration {
 
     @Autowired
-    private SlowLaneResubmitProcessor slowLaneResubmitProcessor;
+    private DefaultSlowLaneBookingEmailRequestSubmitter defaultSlowLaneBookingEmailRequestSubmitter;
 
     @Bean
-    public ErrorHandlerAspect errorHandlerAspect() {
-        return new ErrorHandlerAspect(slowLaneResubmitProcessor);
+    public RequestResubmittingErrorHandlerAspect requestResubmittingErrorHandlerAspect() {
+        return new RequestResubmittingErrorHandlerAspect(defaultSlowLaneBookingEmailRequestSubmitter);
     }
-
 }

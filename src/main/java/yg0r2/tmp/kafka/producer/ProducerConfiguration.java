@@ -1,4 +1,4 @@
-package yg0r2.tmp.kafka;
+package yg0r2.tmp.kafka.producer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +13,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 
 @Configuration
-public class SenderConfiguration {
+public class ProducerConfiguration {
 
     @Value("${kafka.bootstrap-servers}")
     private String bootstrapServers;
