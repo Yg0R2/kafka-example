@@ -1,4 +1,4 @@
-package yg0r2.tmp.kafka.producer;
+package yg0r2.kafka.producer;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

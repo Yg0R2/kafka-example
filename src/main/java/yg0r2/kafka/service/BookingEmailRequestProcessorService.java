@@ -1,4 +1,4 @@
-package yg0r2.tmp.kafka;
+package yg0r2.kafka.service;
 
 import java.util.HashMap;
 import java.util.Map;

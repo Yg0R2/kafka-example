@@ -1,4 +1,4 @@
-package yg0r2.tmp.kafka.scheduler;
+package yg0r2.kafka.scheduler.config;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import yg0r2.tmp.kafka.consumer.BookingEmailRequestConsumer;
+import yg0r2.kafka.consumer.BookingEmailRequestConsumer;
 
 @Configuration
 public class SlowLaneBookingEmailRequestSchedulingConfiguration {

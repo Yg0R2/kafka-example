@@ -1,4 +1,4 @@
-package yg0r2.tmp.kafka;
+package yg0r2.kafka.errorhandler;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -6,7 +6,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import yg0r2.tmp.kafka.producer.DefaultSlowLaneBookingEmailRequestSubmitter;
+import yg0r2.kafka.producer.DefaultSlowLaneBookingEmailRequestSubmitter;
 
 @Aspect
 public class RequestResubmittingErrorHandlerAspect {
@@ -19,7 +19,7 @@ public class RequestResubmittingErrorHandlerAspect {
         this.slowLaneBookingEmailRequestSubmitter = slowLaneBookingEmailRequestSubmitter;
     }
 
-    @Around("execution(* yg0r2.tmp.kafka.BookingEmailRequestProcessorService.*(..))")
+    @Around("execution(* yg0r2.kafka.service.BookingEmailRequestProcessorService.*(..))")
     public void executeDefendedRequest(ProceedingJoinPoint proceedingJoinPoint) {
         try {
             proceedingJoinPoint.proceed();

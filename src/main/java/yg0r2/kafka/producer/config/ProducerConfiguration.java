@@ -1,4 +1,4 @@
-package yg0r2.tmp.kafka.producer;
+package yg0r2.kafka.producer.config;
 
 import java.util.HashMap;
 import java.util.Map;

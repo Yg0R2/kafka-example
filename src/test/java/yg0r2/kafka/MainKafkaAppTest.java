@@ -1,4 +1,4 @@
-package yg0r2.tmp.kafka;
+package yg0r2.kafka;
 
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -8,11 +8,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.test.rule.KafkaEmbedded;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import yg0r2.tmp.kafka.producer.Producer;
+import yg0r2.kafka.producer.Producer;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest

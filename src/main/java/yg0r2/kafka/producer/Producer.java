@@ -1,4 +1,4 @@
-package yg0r2.tmp.kafka.producer;
+package yg0r2.kafka.producer;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;

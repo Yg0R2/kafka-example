@@ -1,11 +1,12 @@
-package yg0r2.tmp.kafka;
+package yg0r2.kafka.errorhandler.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
-import yg0r2.tmp.kafka.producer.DefaultSlowLaneBookingEmailRequestSubmitter;
+import yg0r2.kafka.errorhandler.RequestResubmittingErrorHandlerAspect;
+import yg0r2.kafka.producer.DefaultSlowLaneBookingEmailRequestSubmitter;
 
 @Configuration
 @EnableAspectJAutoProxy(proxyTargetClass = true)

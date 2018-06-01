@@ -1,4 +1,4 @@
-package yg0r2.tmp.kafka.consumer;
+package yg0r2.kafka.consumer;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 
-import yg0r2.tmp.kafka.BookingEmailRequestRecordProcessor;
+import yg0r2.kafka.service.BookingEmailRequestRecordProcessor;
 
 public class BookingEmailRequestConsumer {
 

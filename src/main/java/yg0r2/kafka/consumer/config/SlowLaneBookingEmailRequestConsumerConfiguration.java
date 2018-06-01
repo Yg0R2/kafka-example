@@ -1,4 +1,4 @@
-package yg0r2.tmp.kafka.consumer;
+package yg0r2.kafka.consumer.config;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,8 +14,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import yg0r2.tmp.kafka.BookingEmailRequestRecordProcessor;
-import yg0r2.tmp.kafka.consumer.BookingEmailRequestConsumer;
+import yg0r2.kafka.consumer.BookingEmailRequestConsumer;
+import yg0r2.kafka.service.BookingEmailRequestRecordProcessor;
 
 @Configuration
 public class SlowLaneBookingEmailRequestConsumerConfiguration {
