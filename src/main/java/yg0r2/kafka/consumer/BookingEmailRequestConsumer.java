@@ -39,7 +39,7 @@ public class BookingEmailRequestConsumer {
     }
 
     private List<ConsumerRecord<String,String>> pollRecords() {
-        LOGGER.info("Polled from: " + topic);
+        LOGGER.info("Polled from: " + Thread.currentThread().getName());
 
         ConsumerRecords<String, String> consumerRecords = kafkaConsumer.poll(pollTimeout);
 

@@ -11,8 +11,10 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 
 import yg0r2.kafka.consumer.BookingEmailRequestConsumer;
 import yg0r2.kafka.service.BookingEmailRequestRecordProcessor;
@@ -36,6 +38,7 @@ public class SlowLaneBookingEmailRequestConsumerConfiguration {
     private BookingEmailRequestRecordProcessor slowLaneBookingEmailRequestRecordProcessor;
 
     @Bean("slowLaneBookingEmailRequestConsumer")
+    @Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public BookingEmailRequestConsumer slowLaneBookingEmailRequestConsumer(
         @Qualifier(value = "slowLaneKafkaConsumer") Consumer<String, String> slowLaneKafkaConsumer) {
 
@@ -43,6 +46,7 @@ public class SlowLaneBookingEmailRequestConsumerConfiguration {
     }
 
     @Bean("slowLaneKafkaConsumer")
+    @Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public Consumer<String, String> slowLaneKafkaConsumer() {
         Consumer<String, String> consumer = new KafkaConsumer<>(consumerConfigs());
 
