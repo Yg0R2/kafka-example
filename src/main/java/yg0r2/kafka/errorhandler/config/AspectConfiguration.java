@@ -7,6 +7,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 import yg0r2.kafka.errorhandler.RequestResubmittingErrorHandlerAspect;
 import yg0r2.kafka.producer.DefaultSlowLaneBookingEmailRequestSubmitter;
+import yg0r2.kafka.retry.RetryPolicy;
 
 @Configuration
 @EnableAspectJAutoProxy(proxyTargetClass = true)
@@ -14,9 +15,11 @@ public class AspectConfiguration {
 
     @Autowired
     private DefaultSlowLaneBookingEmailRequestSubmitter defaultSlowLaneBookingEmailRequestSubmitter;
+    @Autowired
+    private RetryPolicy retryPolicy;
 
     @Bean
     public RequestResubmittingErrorHandlerAspect requestResubmittingErrorHandlerAspect() {
-        return new RequestResubmittingErrorHandlerAspect(defaultSlowLaneBookingEmailRequestSubmitter);
+        return new RequestResubmittingErrorHandlerAspect(defaultSlowLaneBookingEmailRequestSubmitter, retryPolicy);
     }
 }

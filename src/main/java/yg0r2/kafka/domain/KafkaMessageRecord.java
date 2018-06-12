@@ -1,11 +1,8 @@
 package yg0r2.kafka.domain;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
-import org.springframework.format.annotation.DateTimeFormat;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
@@ -18,9 +15,9 @@ public class KafkaMessageRecord<T> {
     private final T payload;
     private final LocalDateTime createDateTime;
 
-    public KafkaMessageRecord(Builder<T> builder) {
+    private KafkaMessageRecord(Builder<T> builder) {
         payload = builder.payload;
-        createDateTime = builder.createDateTime;
+        createDateTime = Optional.ofNullable(builder.createDateTime).orElse(LocalDateTime.now());
     }
 
     public T getPayload() {
@@ -35,14 +32,6 @@ public class KafkaMessageRecord<T> {
 
         private T payload;
         private LocalDateTime createDateTime;
-
-        public Builder() {
-        }
-
-        public Builder(KafkaMessageRecord<T> kafkaMessageRecord) {
-            payload = kafkaMessageRecord.getPayload();
-            createDateTime = kafkaMessageRecord.getCreateDateTime();
-        }
 
         public Builder<T> withPayload(T payload) {
             this.payload = payload;

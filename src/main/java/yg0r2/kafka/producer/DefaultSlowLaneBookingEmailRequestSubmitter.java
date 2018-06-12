@@ -19,12 +19,6 @@ public class DefaultSlowLaneBookingEmailRequestSubmitter {
     private KafkaTemplate<String, KafkaMessageRecord<String>> kafkaTemplate;
 
     public void submitEmailRequest(KafkaMessageRecord<String> kafkaMessageRecord) {
-        if (kafkaMessageRecord.getCreateDateTime() == null) {
-            kafkaMessageRecord = new KafkaMessageRecord.Builder(kafkaMessageRecord)
-                .withCreateDateTime(LocalDateTime.now())
-                .build();
-        }
-
         kafkaTemplate.send(topic, kafkaMessageRecord);
     }
 
