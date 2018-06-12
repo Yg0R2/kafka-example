@@ -6,6 +6,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import yg0r2.kafka.domain.KafkaMessageRecord;
 import yg0r2.kafka.producer.DefaultSlowLaneBookingEmailRequestSubmitter;
 
 @Aspect
@@ -25,10 +26,10 @@ public class RequestResubmittingErrorHandlerAspect {
             proceedingJoinPoint.proceed();
         }
         catch (Throwable throwable) {
-            String payload = (String) proceedingJoinPoint.getArgs()[0];
+            KafkaMessageRecord<String> kafkaMessageRecord = (KafkaMessageRecord<String>) proceedingJoinPoint.getArgs()[0];
 
-            LOGGER.info("Resubmitting failed request payload={}", payload);
-            slowLaneBookingEmailRequestSubmitter.submitEmailRequest(payload);
+            LOGGER.info("Resubmitting failed request payload={}", kafkaMessageRecord.getPayload());
+            slowLaneBookingEmailRequestSubmitter.submitEmailRequest(kafkaMessageRecord);
         }
     }
 

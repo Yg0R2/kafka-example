@@ -11,7 +11,7 @@ import org.springframework.kafka.test.rule.KafkaEmbedded;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import yg0r2.kafka.producer.Producer;
+import yg0r2.kafka.producer.QueryFeederProducer;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -26,7 +26,7 @@ public class MainKafkaAppTest {
     public static KafkaEmbedded embeddedKafka = new KafkaEmbedded(5, true, 3, FAST_LANE_TOPIC, SLOW_LANE_TOPIC);
 
     @Autowired
-    private Producer producer;
+    private QueryFeederProducer queryFeederProducer;
 
     @Test
     public void testReceive() throws Exception {
@@ -34,12 +34,12 @@ public class MainKafkaAppTest {
         Thread.sleep(3000);
 
         LOGGER.info("Send messages to " + FAST_LANE_TOPIC);
-        producer.send(FAST_LANE_TOPIC, "000000000000");
-        producer.send(FAST_LANE_TOPIC, "111111111111");
-        producer.send(FAST_LANE_TOPIC, "222222222222");
-        producer.send(FAST_LANE_TOPIC, "333333333333");
-        producer.send(FAST_LANE_TOPIC, "444444444444");
-        producer.send(FAST_LANE_TOPIC, "555555555555");
+        queryFeederProducer.send(FAST_LANE_TOPIC, "000000000000");
+        queryFeederProducer.send(FAST_LANE_TOPIC, "111111111111");
+        queryFeederProducer.send(FAST_LANE_TOPIC, "222222222222");
+        queryFeederProducer.send(FAST_LANE_TOPIC, "333333333333");
+        queryFeederProducer.send(FAST_LANE_TOPIC, "444444444444");
+        queryFeederProducer.send(FAST_LANE_TOPIC, "555555555555");
 
         while (true) {
 

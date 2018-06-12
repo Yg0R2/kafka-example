@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 
+import yg0r2.kafka.domain.KafkaMessageRecord;
 import yg0r2.kafka.service.BookingEmailRequestRecordProcessor;
 
 public class BookingEmailRequestConsumer {
@@ -17,11 +18,11 @@ public class BookingEmailRequestConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(BookingEmailRequestConsumer.class);
 
     private final BookingEmailRequestRecordProcessor bookingEmailRequestRecordProcessor;
-    private final Consumer<String, String> kafkaConsumer;
+    private final Consumer<String, KafkaMessageRecord<String>> kafkaConsumer;
     private final String topic;
     private final long pollTimeout;
 
-    public BookingEmailRequestConsumer(BookingEmailRequestRecordProcessor bookingEmailRequestRecordProcessor, Consumer<String, String> kafkaConsumer, String topic, long pollTimeout) {
+    public BookingEmailRequestConsumer(BookingEmailRequestRecordProcessor bookingEmailRequestRecordProcessor, Consumer<String, KafkaMessageRecord<String>> kafkaConsumer, String topic, long pollTimeout) {
         this.bookingEmailRequestRecordProcessor = bookingEmailRequestRecordProcessor;
         this.kafkaConsumer = kafkaConsumer;
         this.topic = topic;
@@ -29,7 +30,7 @@ public class BookingEmailRequestConsumer {
     }
 
     public void poll() {
-        List<ConsumerRecord<String, String>> records = pollRecords();
+        List<ConsumerRecord<String, KafkaMessageRecord<String>>> records = pollRecords();
 
         if (!records.isEmpty()) {
             bookingEmailRequestRecordProcessor.processRecords(records);
@@ -38,12 +39,12 @@ public class BookingEmailRequestConsumer {
         }
     }
 
-    private List<ConsumerRecord<String,String>> pollRecords() {
+    private List<ConsumerRecord<String, KafkaMessageRecord<String>>> pollRecords() {
         LOGGER.info("Polled from: " + Thread.currentThread().getName());
 
-        ConsumerRecords<String, String> consumerRecords = kafkaConsumer.poll(pollTimeout);
+        ConsumerRecords<String, KafkaMessageRecord<String>> consumerRecords = kafkaConsumer.poll(pollTimeout);
 
-        return new ImmutableList.Builder<ConsumerRecord<String, String>>()
+        return new ImmutableList.Builder<ConsumerRecord<String, KafkaMessageRecord<String>>>()
             .addAll(consumerRecords.records(topic))
             .build();
     }

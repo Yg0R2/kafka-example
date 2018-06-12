@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import yg0r2.kafka.domain.KafkaMessageRecord;
+
 @Component
 public class BookingEmailRequestProcessorService {
 
@@ -15,22 +17,21 @@ public class BookingEmailRequestProcessorService {
     private static final Map<String, Integer> COUNTER_MAP = new HashMap<>();
     private static final Random RND = new Random();
 
-    public void processRequest(String payload) {
+    public void processRequest(KafkaMessageRecord<String> kafkaMessageRecord) {
         try {
             Thread.sleep(RND.nextInt(1000) + 500);
         }
         catch (InterruptedException e) {
         }
 
-        if (!COUNTER_MAP.containsKey(payload)) {
-            COUNTER_MAP.put(payload, 0);
-        }
+        String payload = kafkaMessageRecord.getPayload();
 
-        int counter = COUNTER_MAP.get(payload);
+        int counter = COUNTER_MAP.putIfAbsent(payload, 0);
         if (counter < 5) {
             COUNTER_MAP.put(payload, ++counter);
 
-            throw new RuntimeException("Failed count doesn't meet.");
+            LOGGER.error("Expected fails is 5 and actual is " + counter + " for payload=" + payload);
+            throw new RuntimeException();
         }
 
         LOGGER.info("Handled payload={}", payload);

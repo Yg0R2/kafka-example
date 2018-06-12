@@ -17,6 +17,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
 import yg0r2.kafka.consumer.BookingEmailRequestConsumer;
+import yg0r2.kafka.domain.KafkaMessageRecord;
+import yg0r2.kafka.serialization.KafkaMessageRecordDeserializer;
 import yg0r2.kafka.service.BookingEmailRequestRecordProcessor;
 
 @Configuration
@@ -40,15 +42,15 @@ public class FastLaneBookingEmailRequestConsumerConfiguration {
     @Bean("fastLaneBookingEmailRequestConsumer")
     @Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public BookingEmailRequestConsumer fastLaneBookingEmailRequestConsumer(
-        @Qualifier(value = "fastLaneKafkaConsumer") Consumer<String, String> fastLaneKafkaConsumer) {
+        @Qualifier(value = "fastLaneKafkaConsumer") Consumer<String, KafkaMessageRecord<String>> fastLaneKafkaConsumer) {
 
         return new BookingEmailRequestConsumer(fastLaneBookingEmailRequestRecordProcessor, fastLaneKafkaConsumer, topic, pollTimeout);
     }
 
     @Bean("fastLaneKafkaConsumer")
     @Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    public Consumer<String, String> fastLaneKafkaConsumer() {
-        Consumer<String, String> consumer = new KafkaConsumer<>(consumerConfigs());
+    public Consumer<String, KafkaMessageRecord<String>> fastLaneKafkaConsumer() {
+        Consumer<String, KafkaMessageRecord<String>> consumer = new KafkaConsumer<>(consumerConfigs());
 
         consumer.subscribe(Collections.singletonList(topic));
 
@@ -65,7 +67,7 @@ public class FastLaneBookingEmailRequestConsumerConfiguration {
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, pollMaxRecords);
 
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaMessageRecordDeserializer.class);
 
         return props;
     }
