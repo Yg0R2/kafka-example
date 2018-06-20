@@ -18,11 +18,11 @@ public class BookingEmailRequestConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(BookingEmailRequestConsumer.class);
 
     private final BookingEmailRequestRecordProcessor bookingEmailRequestRecordProcessor;
-    private final Consumer<String, KafkaMessageRecord<String>> kafkaConsumer;
+    private final Consumer<String, KafkaMessageRecord> kafkaConsumer;
     private final String topic;
     private final long pollTimeout;
 
-    public BookingEmailRequestConsumer(BookingEmailRequestRecordProcessor bookingEmailRequestRecordProcessor, Consumer<String, KafkaMessageRecord<String>> kafkaConsumer, String topic, long pollTimeout) {
+    public BookingEmailRequestConsumer(BookingEmailRequestRecordProcessor bookingEmailRequestRecordProcessor, Consumer<String, KafkaMessageRecord> kafkaConsumer, String topic, long pollTimeout) {
         this.bookingEmailRequestRecordProcessor = bookingEmailRequestRecordProcessor;
         this.kafkaConsumer = kafkaConsumer;
         this.topic = topic;
@@ -30,21 +30,21 @@ public class BookingEmailRequestConsumer {
     }
 
     public void poll() {
-        List<ConsumerRecord<String, KafkaMessageRecord<String>>> records = pollRecords();
+        List<ConsumerRecord<String, KafkaMessageRecord>> records = pollRecords();
 
         if (!records.isEmpty()) {
-            bookingEmailRequestRecordProcessor.processRecords(records);
+            records.forEach(bookingEmailRequestRecordProcessor::processRecord);
 
             kafkaConsumer.commitSync();
         }
     }
 
-    private List<ConsumerRecord<String, KafkaMessageRecord<String>>> pollRecords() {
+    private List<ConsumerRecord<String, KafkaMessageRecord>> pollRecords() {
         LOGGER.info("Polled from: " + Thread.currentThread().getName());
 
-        ConsumerRecords<String, KafkaMessageRecord<String>> consumerRecords = kafkaConsumer.poll(pollTimeout);
+        ConsumerRecords<String, KafkaMessageRecord> consumerRecords = kafkaConsumer.poll(pollTimeout);
 
-        return new ImmutableList.Builder<ConsumerRecord<String, KafkaMessageRecord<String>>>()
+        return new ImmutableList.Builder<ConsumerRecord<String, KafkaMessageRecord>>()
             .addAll(consumerRecords.records(topic))
             .build();
     }

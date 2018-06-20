@@ -1,5 +1,6 @@
 package yg0r2.kafka.errorhandler;
 
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -20,17 +21,21 @@ public class RequestResubmittingErrorHandlerAspect {
         this.slowLaneBookingEmailRequestSubmitter = slowLaneBookingEmailRequestSubmitter;
     }
 
-    @Around("execution(* yg0r2.kafka.service.BookingEmailRequestProcessorService.*(..))")
+    @Around("execution(* yg0r2.kafka.service.BookingEmailRequestRecordProcessor.processRecord(..))")
     public void executeDefendedRequest(ProceedingJoinPoint proceedingJoinPoint) {
         try {
             proceedingJoinPoint.proceed();
         }
         catch (Throwable throwable) {
-            KafkaMessageRecord<String> kafkaMessageRecord = (KafkaMessageRecord<String>) proceedingJoinPoint.getArgs()[0];
+            KafkaMessageRecord kafkaMessageRecord = getKafkaMessageRecord(proceedingJoinPoint);
 
             LOGGER.info("Resubmitting failed request payload={}", kafkaMessageRecord.getPayload());
             slowLaneBookingEmailRequestSubmitter.submitEmailRequest(kafkaMessageRecord);
         }
+    }
+
+    private KafkaMessageRecord getKafkaMessageRecord(ProceedingJoinPoint proceedingJoinPoint){
+        return ((ConsumerRecord<String, KafkaMessageRecord>) proceedingJoinPoint.getArgs()[0]).value();
     }
 
 }

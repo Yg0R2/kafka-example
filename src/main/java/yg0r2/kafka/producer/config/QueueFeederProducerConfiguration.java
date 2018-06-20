@@ -12,21 +12,21 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 
-import yg0r2.kafka.domain.KafkaMessageRecord;
-import yg0r2.kafka.serialization.KafkaMessageRecordSerializer;
+import com.google.common.annotations.VisibleForTesting;
 
 @Configuration
-public class ProducerConfiguration {
+@VisibleForTesting
+public class QueueFeederProducerConfiguration {
 
     @Value("${kafka.bootstrap-servers}")
     private String bootstrapServers;
 
-    @Bean
-    public KafkaTemplate<String, KafkaMessageRecord> kafkaTemplate() {
+    @Bean("queueFeederKafkaTemplate")
+    public KafkaTemplate<String, String> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 
-    private ProducerFactory<String, KafkaMessageRecord> producerFactory() {
+    private ProducerFactory<String, String> producerFactory() {
         return new DefaultKafkaProducerFactory<>(producerConfigs());
     }
 
@@ -35,7 +35,7 @@ public class ProducerConfiguration {
 
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaMessageRecordSerializer.class);
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
 
         return props;
     }

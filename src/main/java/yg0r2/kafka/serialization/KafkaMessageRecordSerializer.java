@@ -12,7 +12,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import yg0r2.kafka.domain.KafkaMessageRecord;
 
-public class KafkaMessageRecordSerializer implements Serializer<KafkaMessageRecord<String>> {
+public class KafkaMessageRecordSerializer implements Serializer<KafkaMessageRecord> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaMessageRecordSerializer.class);
 
@@ -23,7 +23,7 @@ public class KafkaMessageRecordSerializer implements Serializer<KafkaMessageReco
     }
 
     @Override
-    public byte[] serialize(String topic, KafkaMessageRecord<String> data) {
+    public byte[] serialize(String topic, KafkaMessageRecord data) {
         return writeValue(data);
     }
 
@@ -31,7 +31,7 @@ public class KafkaMessageRecordSerializer implements Serializer<KafkaMessageReco
     public void close() {
     }
 
-    private byte[] writeValue(KafkaMessageRecord<String> kafkaMessageRecord) {
+    private byte[] writeValue(KafkaMessageRecord kafkaMessageRecord) {
         try {
             return objectMapper.writeValueAsBytes(kafkaMessageRecord);
         }

@@ -1,29 +1,26 @@
 package yg0r2.kafka.domain;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
-import org.springframework.format.annotation.DateTimeFormat;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(builder = KafkaMessageRecord.Builder.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class KafkaMessageRecord<T> {
+public class KafkaMessageRecord {
 
     public static final KafkaMessageRecord NULL_OBJECT = new Builder().build();
 
-    private final T payload;
+    private final String payload;
     private final LocalDateTime createDateTime;
 
-    public KafkaMessageRecord(Builder<T> builder) {
+    private KafkaMessageRecord(Builder builder) {
         payload = builder.payload;
-        createDateTime = builder.createDateTime;
+        createDateTime = Optional.ofNullable(builder.createDateTime).orElse(LocalDateTime.now());
     }
 
-    public T getPayload() {
+    public String getPayload() {
         return payload;
     }
 
@@ -31,33 +28,25 @@ public class KafkaMessageRecord<T> {
         return createDateTime;
     }
 
-    public static class Builder<T> {
+    public static class Builder {
 
-        private T payload;
+        private String payload;
         private LocalDateTime createDateTime;
 
-        public Builder() {
-        }
-
-        public Builder(KafkaMessageRecord<T> kafkaMessageRecord) {
-            payload = kafkaMessageRecord.getPayload();
-            createDateTime = kafkaMessageRecord.getCreateDateTime();
-        }
-
-        public Builder<T> withPayload(T payload) {
+        public Builder withPayload(String payload) {
             this.payload = payload;
 
             return this;
         }
 
-        public Builder<T> withCreateDateTime(LocalDateTime createDateTime) {
+        public Builder withCreateDateTime(LocalDateTime createDateTime) {
             this.createDateTime = createDateTime;
 
             return this;
         }
 
-        public KafkaMessageRecord<T> build() {
-            return new KafkaMessageRecord<>(this);
+        public KafkaMessageRecord build() {
+            return new KafkaMessageRecord(this);
         }
     }
 

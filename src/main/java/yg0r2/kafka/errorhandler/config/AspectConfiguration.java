@@ -9,7 +9,7 @@ import yg0r2.kafka.errorhandler.RequestResubmittingErrorHandlerAspect;
 import yg0r2.kafka.producer.DefaultSlowLaneBookingEmailRequestSubmitter;
 
 @Configuration
-@EnableAspectJAutoProxy(proxyTargetClass = true)
+@EnableAspectJAutoProxy(proxyTargetClass = false)
 public class AspectConfiguration {
 
     @Autowired

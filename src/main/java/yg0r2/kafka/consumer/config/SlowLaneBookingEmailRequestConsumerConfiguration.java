@@ -42,15 +42,15 @@ public class SlowLaneBookingEmailRequestConsumerConfiguration {
     @Bean("slowLaneBookingEmailRequestConsumer")
     @Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public BookingEmailRequestConsumer slowLaneBookingEmailRequestConsumer(
-        @Qualifier(value = "slowLaneKafkaConsumer") Consumer<String, KafkaMessageRecord<String>> slowLaneKafkaConsumer) {
+        @Qualifier(value = "slowLaneKafkaConsumer") Consumer<String, KafkaMessageRecord> slowLaneKafkaConsumer) {
 
         return new BookingEmailRequestConsumer(slowLaneBookingEmailRequestRecordProcessor, slowLaneKafkaConsumer, topic, pollTimeout);
     }
 
     @Bean("slowLaneKafkaConsumer")
     @Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    public Consumer<String, KafkaMessageRecord<String>> slowLaneKafkaConsumer() {
-        Consumer<String, KafkaMessageRecord<String>> consumer = new KafkaConsumer<>(consumerConfigs());
+    public Consumer<String, KafkaMessageRecord> slowLaneKafkaConsumer() {
+        Consumer<String, KafkaMessageRecord> consumer = new KafkaConsumer<>(consumerConfigs());
 
         consumer.subscribe(Collections.singletonList(topic));
 

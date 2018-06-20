@@ -13,7 +13,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import yg0r2.kafka.domain.KafkaMessageRecord;
 
-public class KafkaMessageRecordDeserializer implements Deserializer<KafkaMessageRecord<String>> {
+public class KafkaMessageRecordDeserializer implements Deserializer<KafkaMessageRecord> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaMessageRecordDeserializer.class);
 
@@ -24,7 +24,7 @@ public class KafkaMessageRecordDeserializer implements Deserializer<KafkaMessage
     }
 
     @Override
-    public KafkaMessageRecord<String> deserialize(String topic, byte[] data) {
+    public KafkaMessageRecord deserialize(String topic, byte[] data) {
         return readValue(data);
     }
 
@@ -32,8 +32,8 @@ public class KafkaMessageRecordDeserializer implements Deserializer<KafkaMessage
     public void close() {
     }
 
-    private KafkaMessageRecord<String> readValue(byte[] data) {
-        KafkaMessageRecord<String> kafkaMessageRecord;
+    private KafkaMessageRecord readValue(byte[] data) {
+        KafkaMessageRecord kafkaMessageRecord;
 
         try {
             kafkaMessageRecord = objectMapper.readValue(data, KafkaMessageRecord.class);
