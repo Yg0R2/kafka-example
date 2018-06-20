@@ -10,7 +10,7 @@ import yg0r2.kafka.producer.DefaultSlowLaneBookingEmailRequestSubmitter;
 import yg0r2.kafka.retry.RetryPolicy;
 
 @Configuration
-@EnableAspectJAutoProxy(proxyTargetClass = true)
+@EnableAspectJAutoProxy(proxyTargetClass = false)
 public class AspectConfiguration {
 
     @Autowired

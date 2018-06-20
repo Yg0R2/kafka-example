@@ -1,5 +1,6 @@
 package yg0r2.kafka.errorhandler;
 
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -24,13 +25,14 @@ public class RequestResubmittingErrorHandlerAspect {
         this.retryPolicy = retryPolicy;
     }
 
-    @Around("execution(* yg0r2.kafka.service.BookingEmailRequestProcessorService.*(..))")
+    @Around("execution(* yg0r2.kafka.service.BookingEmailRequestRecordProcessor.processRecord(..))")
     public void executeDefendedRequest(ProceedingJoinPoint proceedingJoinPoint) {
+        LOGGER.info("inside aspect");
         try {
             proceedingJoinPoint.proceed();
         }
         catch (Throwable throwable) {
-            KafkaMessageRecord<String> kafkaMessageRecord = (KafkaMessageRecord<String>) proceedingJoinPoint.getArgs()[0];
+            KafkaMessageRecord<String> kafkaMessageRecord = getKafkaMessageRecord(proceedingJoinPoint);
 
             RetryContext retryContext = createRetryContext(kafkaMessageRecord, throwable);
             if (retryPolicy.canRetry(retryContext)) {
@@ -40,6 +42,10 @@ public class RequestResubmittingErrorHandlerAspect {
                 LOGGER.info("Retry doesn't allow for payload={}", kafkaMessageRecord.getPayload());
             }
         }
+    }
+
+    private KafkaMessageRecord<String> getKafkaMessageRecord(ProceedingJoinPoint proceedingJoinPoint) {
+        return ((ConsumerRecord<String, KafkaMessageRecord<String>>) proceedingJoinPoint.getArgs()[0]).value() ;
     }
 
     private RetryContext createRetryContext(KafkaMessageRecord<String> kafkaMessageRecord, Throwable throwable) {

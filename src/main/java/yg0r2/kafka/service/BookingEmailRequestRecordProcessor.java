@@ -19,13 +19,16 @@ public class BookingEmailRequestRecordProcessor {
     }
 
     public void processRecords(List<ConsumerRecord<String, KafkaMessageRecord<String>>> records) {
-        records.forEach(this::processRecord);
+        //records.forEach(this::processRecord);
+        for (ConsumerRecord<String, KafkaMessageRecord<String>> record : records) {
+            processRecord(record);
+        }
     }
 
-    private void processRecord(ConsumerRecord<String, KafkaMessageRecord<String>> record) {
+    public void processRecord(ConsumerRecord<String, KafkaMessageRecord<String>> record) {
         LOGGER.info("Record consumed from topic={} partition={} offset={}", record.topic(), record.partition(), record.offset());
 
-        bookingEmailRequestProcessorService.processRequest(record.value());
+        bookingEmailRequestProcessorService.processRequest(record.value().getPayload());
     }
 
 }

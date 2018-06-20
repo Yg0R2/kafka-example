@@ -19,14 +19,12 @@ public class BookingEmailRequestProcessorService {
     private static final Random RND = new Random();
     private static final int MAX_FAIL_COUNT = 5;
 
-    public void processRequest(KafkaMessageRecord<String> kafkaMessageRecord) {
+    public void processRequest(String payload) {
         try {
             Thread.sleep(RND.nextInt(1000) + 500);
         }
         catch (InterruptedException e) {
         }
-
-        String payload = kafkaMessageRecord.getPayload();
 
         if (RND.nextBoolean()) {
             LOGGER.error("Circuit breaker open; payload={}", payload);
