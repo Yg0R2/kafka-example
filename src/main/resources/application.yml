@@ -2,7 +2,8 @@ kafka:
   bootstrap-servers: ${spring.embedded.kafka.brokers}
   groupId: "tmp"
   retry:
-    max.seconds: 20
+    initial.retention.seconds: 5
+    retention.max.seconds: 30
   fastLane:
     topic: tmp-fastLane
     poll:
@@ -17,5 +18,5 @@ kafka:
       timeout.ms: 10000
       interval.ms: 2000
       initialDelay.ms: 0
-      pool.size: 1
+      pool.size: 2
       max.records: 2
