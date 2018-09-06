@@ -7,10 +7,14 @@ import java.util.Map;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import yg0r2.kafka.domain.KafkaMessageRecord;
+import yg0r2.kafka.domain.RequestCorrelationId;
+import yg0r2.kafka.serialization.KafkaMessageRecordDeserializer;
+import yg0r2.kafka.serialization.RequestCorrelationIdDeserializer;
 
 @Configuration
 public class KafkaMessageRecordConsumerConfiguration {
@@ -25,8 +29,8 @@ public class KafkaMessageRecordConsumerConfiguration {
     private String topic;
 
     @Bean
-    public Consumer<String, String> kafkaConsumer() {
-        Consumer<String, String> consumer = new KafkaConsumer<>(consumerConfigs());
+    public Consumer<RequestCorrelationId, KafkaMessageRecord> kafkaConsumer() {
+        Consumer<RequestCorrelationId, KafkaMessageRecord> consumer = new KafkaConsumer<>(consumerConfigs());
 
         consumer.subscribe(Collections.singletonList(topic));
 
@@ -41,8 +45,8 @@ public class KafkaMessageRecordConsumerConfiguration {
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetReset);
 
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, RequestCorrelationIdDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaMessageRecordDeserializer.class);
 
         return props;
     }

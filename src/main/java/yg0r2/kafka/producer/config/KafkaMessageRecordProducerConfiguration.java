@@ -4,13 +4,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
+
+import yg0r2.kafka.domain.KafkaMessageRecord;
+import yg0r2.kafka.domain.RequestCorrelationId;
+import yg0r2.kafka.serialization.KafkaMessageRecordSerializer;
+import yg0r2.kafka.serialization.RequestCorrelationIdSerializer;
 
 @Configuration
 public class KafkaMessageRecordProducerConfiguration {
@@ -21,15 +25,15 @@ public class KafkaMessageRecordProducerConfiguration {
     private String topic;
 
     @Bean
-    public KafkaTemplate<String, String> kafkaTemplate() {
-        KafkaTemplate<String, String> kafkaTemplate = new KafkaTemplate<>(producerFactory());
+    public KafkaTemplate<RequestCorrelationId, KafkaMessageRecord> kafkaTemplate() {
+        KafkaTemplate<RequestCorrelationId, KafkaMessageRecord> kafkaTemplate = new KafkaTemplate<>(producerFactory());
 
         kafkaTemplate.setDefaultTopic(topic);
 
         return kafkaTemplate;
     }
 
-    private ProducerFactory<String, String> producerFactory() {
+    private ProducerFactory<RequestCorrelationId, KafkaMessageRecord> producerFactory() {
         return new DefaultKafkaProducerFactory<>(producerConfigs());
     }
 
@@ -41,8 +45,8 @@ public class KafkaMessageRecordProducerConfiguration {
         properties.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
         properties.put(ProducerConfig.LINGER_MS_CONFIG, 1);
         properties.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
-        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, RequestCorrelationIdSerializer.class);
+        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaMessageRecordSerializer.class);
 
         return properties;
     }

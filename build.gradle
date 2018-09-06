@@ -29,20 +29,32 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 ext {
+    jacksonVersion = "2.9.5"
     springKafkaVersion = '1.2.2.RELEASE'
 }
 
 dependencies {
+    compile("com.fasterxml.jackson.core:jackson-core:${jacksonVersion}")
+    compile("com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}")
+    compile("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
+    compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonVersion}")
+
+    compile("com.google.guava:guava:18.0")
+
     compile("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
     //compile("org.springframework.kafka:spring-kafka:${springBootVersion}")
     compile("org.springframework.kafka:spring-kafka:${springKafkaVersion}")
+
     //compile("org.apache.kafka:kafka-clients:1.1.0")
     compile("org.apache.kafka:kafka_2.11:0.10.2.0") {
         exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     }
 
+    // TEST dependencies
+
     testCompile("org.springframework.boot:spring-boot-starter-test:${springBootVersion}")
     //testCompile("org.springframework.kafka:spring-kafka-test:${springBootVersion}")
     testCompile("org.springframework.kafka:spring-kafka-test:${springKafkaVersion}")
+
     testCompile('junit:junit:4.12')
 }

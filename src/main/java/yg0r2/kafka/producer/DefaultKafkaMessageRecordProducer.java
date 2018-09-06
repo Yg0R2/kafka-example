@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
+import yg0r2.kafka.domain.KafkaMessageRecord;
+import yg0r2.kafka.domain.RequestCorrelationId;
+
 @Component
 class DefaultKafkaMessageRecordProducer implements KafkaMessageRecordProducer {
 
@@ -16,13 +19,13 @@ class DefaultKafkaMessageRecordProducer implements KafkaMessageRecordProducer {
     private String topic;
 
     @Autowired
-    private KafkaTemplate<String, String> kafkaTemplate;
+    private KafkaTemplate<RequestCorrelationId, KafkaMessageRecord> kafkaTemplate;
 
     @Override
-    public void submitRequest(String data) {
-        kafkaTemplate.send(topic, data);
+    public void submitRequest(KafkaMessageRecord kafkaMessageRecord) {
+        kafkaTemplate.send(topic, kafkaMessageRecord);
 
-        LOGGER.info("Submit request: {} to topic: {}", data, topic);
+        LOGGER.info("Submit request: {} to topic: {}", kafkaMessageRecord, topic);
     }
 
 }

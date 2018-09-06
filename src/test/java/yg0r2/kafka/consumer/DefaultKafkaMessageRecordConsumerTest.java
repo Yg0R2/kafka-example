@@ -6,6 +6,8 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import java.util.UUID;
+
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.Before;
@@ -22,6 +24,8 @@ import org.springframework.kafka.test.rule.KafkaEmbedded;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import yg0r2.kafka.domain.KafkaMessageRecord;
+import yg0r2.kafka.domain.RequestCorrelationId;
 import yg0r2.kafka.processor.KafkaMessageRecordProcessor;
 
 @RunWith(SpringRunner.class)
@@ -35,9 +39,9 @@ public class DefaultKafkaMessageRecordConsumerTest {
     public static KafkaEmbedded embeddedKafka = new KafkaEmbedded(1, true, 1, TEST_TOPIC);
 
     @Autowired
-    private Consumer<String, String> kafkaConsumer;
+    private Consumer<RequestCorrelationId, KafkaMessageRecord> kafkaConsumer;
     @Autowired
-    private KafkaTemplate<String, String> kafkaTemplate;
+    private KafkaTemplate<RequestCorrelationId, KafkaMessageRecord> kafkaTemplate;
 
     @Mock
     private KafkaMessageRecordProcessor kafkaMessageRecordProcessor;
@@ -54,8 +58,9 @@ public class DefaultKafkaMessageRecordConsumerTest {
     @Test
     public void testShouldReturnProperResponse() {
         // GIVEN
-        String kafkaMessageRecord = "requestData";
-        kafkaTemplate.send(TEST_TOPIC, kafkaMessageRecord);
+        RequestCorrelationId requestCorrelationId = createRequestCorrelationId();
+        KafkaMessageRecord kafkaMessageRecord = createKafkaMessageRecord("requestData");
+        kafkaTemplate.send(TEST_TOPIC, requestCorrelationId, kafkaMessageRecord);
 
         // WHEN
         doNothing().when(kafkaMessageRecordProcessor).processRecord(isA(ConsumerRecord.class));
@@ -68,7 +73,18 @@ public class DefaultKafkaMessageRecordConsumerTest {
         verify(kafkaMessageRecordProcessor).processRecord(argumentCaptor.capture());
         verifyNoMoreInteractions(kafkaMessageRecordProcessor);
 
+        assertEquals(requestCorrelationId, argumentCaptor.getValue().key());
         assertEquals(kafkaMessageRecord, argumentCaptor.getValue().value());
+    }
+
+    private RequestCorrelationId createRequestCorrelationId() {
+        return new RequestCorrelationId(UUID.randomUUID(), System.nanoTime());
+    }
+
+    private KafkaMessageRecord createKafkaMessageRecord(String request) {
+        return new KafkaMessageRecord.Builder()
+            .withRequest(request)
+            .build();
     }
 
 }

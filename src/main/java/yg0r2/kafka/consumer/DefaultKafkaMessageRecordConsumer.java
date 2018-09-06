@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import yg0r2.kafka.domain.KafkaMessageRecord;
+import yg0r2.kafka.domain.RequestCorrelationId;
 import yg0r2.kafka.processor.KafkaMessageRecordProcessor;
 
 @Component
@@ -15,13 +17,13 @@ class DefaultKafkaMessageRecordConsumer implements KafkaMessageRecordConsumer {
     private long pollTimeout;
 
     @Autowired
-    private Consumer<String, String> kafkaConsumer;
+    private Consumer<RequestCorrelationId, KafkaMessageRecord> kafkaConsumer;
     @Autowired
     private KafkaMessageRecordProcessor kafkaMessageRecordProcessor;
 
     @Override
     public void poll() {
-        ConsumerRecords<String, String> records = kafkaConsumer.poll(pollTimeout);
+        ConsumerRecords<RequestCorrelationId, KafkaMessageRecord> records = kafkaConsumer.poll(pollTimeout);
 
         records.forEach(kafkaMessageRecordProcessor::processRecord);
     }
