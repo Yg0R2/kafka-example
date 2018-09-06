@@ -1,0 +1,7 @@
+kafka:
+  bootstrap-servers: ${spring.embedded.kafka.brokers}
+  brokers: ${kafka.bootstrap-servers}
+  group.id: test
+  auto.offset.reset: earliest
+  topic: test-topic
+  pollTimeout: 1000
