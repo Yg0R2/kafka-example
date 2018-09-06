@@ -17,15 +17,15 @@ import yg0r2.kafka.serialization.KafkaMessageRecordSerializer;
 import yg0r2.kafka.serialization.RequestCorrelationIdSerializer;
 
 @Configuration
-public class KafkaMessageRecordProducerConfiguration {
+public class SlowLaneKafkaMessageRecordProducerConfiguration {
 
     @Value("${kafka.brokers}")
     private String brokers;
-    @Value("${kafka.topic}")
+    @Value("${kafka.slowLane.topic}")
     private String topic;
 
     @Bean
-    public KafkaTemplate<RequestCorrelationId, KafkaMessageRecord> kafkaTemplate() {
+    public KafkaTemplate<RequestCorrelationId, KafkaMessageRecord> slowLaneKafkaTemplate() {
         KafkaTemplate<RequestCorrelationId, KafkaMessageRecord> kafkaTemplate = new KafkaTemplate<>(producerFactory());
 
         kafkaTemplate.setDefaultTopic(topic);

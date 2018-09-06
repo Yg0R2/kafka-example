@@ -15,52 +15,47 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.rule.KafkaEmbedded;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import yg0r2.kafka.domain.KafkaMessageRecord;
 import yg0r2.kafka.domain.RequestCorrelationId;
 import yg0r2.kafka.processor.KafkaMessageRecordProcessor;
+import yg0r2.kafka.producer.KafkaMessageRecordProducer;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class DefaultKafkaMessageRecordConsumerTest {
+public class SlowLaneKafkaMessageRecordConsumerTest {
 
-    private static final String TEST_TOPIC = "test-topic";
+    private static final String TOPIC = "slow-lane-topic";
     private static final long POLL_TIMEOUT = 3000L;
 
     @ClassRule
-    public static KafkaEmbedded embeddedKafka = new KafkaEmbedded(1, true, 1, TEST_TOPIC);
+    public static KafkaEmbedded embeddedKafka = new KafkaEmbedded(1, true, 1, TOPIC);
 
     @Autowired
-    private Consumer<RequestCorrelationId, KafkaMessageRecord> kafkaConsumer;
+    private Consumer<RequestCorrelationId, KafkaMessageRecord> slowLaneKafkaConsumer;
     @Autowired
-    private KafkaTemplate<RequestCorrelationId, KafkaMessageRecord> kafkaTemplate;
+    private KafkaMessageRecordProducer slowLaneKafkaMessageRecordProducer;
 
     @Mock
     private KafkaMessageRecordProcessor kafkaMessageRecordProcessor;
 
-    @InjectMocks
-    private DefaultKafkaMessageRecordConsumer underTest;
+    private KafkaMessageRecordConsumer underTest;
 
     @Before
     public void setUp() {
-        ReflectionTestUtils.setField(underTest, "pollTimeout", POLL_TIMEOUT);
-        ReflectionTestUtils.setField(underTest, "kafkaConsumer", kafkaConsumer);
+        underTest = new KafkaMessageRecordConsumer(slowLaneKafkaConsumer, kafkaMessageRecordProcessor, TOPIC, POLL_TIMEOUT);
     }
 
     @Test
     public void testShouldReturnProperResponse() {
         // GIVEN
-        RequestCorrelationId requestCorrelationId = createRequestCorrelationId();
         KafkaMessageRecord kafkaMessageRecord = createKafkaMessageRecord("requestData");
-        kafkaTemplate.send(TEST_TOPIC, requestCorrelationId, kafkaMessageRecord);
+        slowLaneKafkaMessageRecordProducer.submitRequest(kafkaMessageRecord);
 
         // WHEN
         doNothing().when(kafkaMessageRecordProcessor).processRecord(isA(ConsumerRecord.class));
@@ -73,18 +68,22 @@ public class DefaultKafkaMessageRecordConsumerTest {
         verify(kafkaMessageRecordProcessor).processRecord(argumentCaptor.capture());
         verifyNoMoreInteractions(kafkaMessageRecordProcessor);
 
+        RequestCorrelationId requestCorrelationId = createRequestCorrelationId(kafkaMessageRecord);
+
         assertEquals(requestCorrelationId, argumentCaptor.getValue().key());
         assertEquals(kafkaMessageRecord, argumentCaptor.getValue().value());
     }
 
-    private RequestCorrelationId createRequestCorrelationId() {
-        return new RequestCorrelationId(UUID.randomUUID(), System.nanoTime());
-    }
-
     private KafkaMessageRecord createKafkaMessageRecord(String request) {
         return new KafkaMessageRecord.Builder()
+            .withRequestId(UUID.randomUUID())
             .withRequest(request)
+            .withTimestamp(System.nanoTime())
             .build();
+    }
+
+    private RequestCorrelationId createRequestCorrelationId(KafkaMessageRecord kafkaMessageRecord) {
+        return new RequestCorrelationId(kafkaMessageRecord.getRequestId(), kafkaMessageRecord.getTimestamp());
     }
 
 }

@@ -7,17 +7,20 @@ import java.util.Map;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import yg0r2.kafka.consumer.KafkaMessageRecordConsumer;
 import yg0r2.kafka.domain.KafkaMessageRecord;
 import yg0r2.kafka.domain.RequestCorrelationId;
+import yg0r2.kafka.processor.KafkaMessageRecordProcessor;
 import yg0r2.kafka.serialization.KafkaMessageRecordDeserializer;
 import yg0r2.kafka.serialization.RequestCorrelationIdDeserializer;
 
 @Configuration
-public class KafkaMessageRecordConsumerConfiguration {
+public class SlowLaneKafkaMessageRecordConsumerConfiguration {
 
     @Value("${kafka.brokers}")
     private String brokers;
@@ -25,11 +28,21 @@ public class KafkaMessageRecordConsumerConfiguration {
     private String groupId;
     @Value("${kafka.auto.offset.reset}")
     private String autoOffsetReset;
-    @Value("${kafka.topic}")
+    @Value("${kafka.slowLane.topic}")
     private String topic;
+    @Value("${kafka.slowLane.pollTimeout}")
+    private long pollTimeout;
+
+    @Autowired
+    private KafkaMessageRecordProcessor kafkaMessageRecordProcessor;
 
     @Bean
-    public Consumer<RequestCorrelationId, KafkaMessageRecord> kafkaConsumer() {
+    public KafkaMessageRecordConsumer slowLaneKafkaMessageRecordConsumer() {
+        return new KafkaMessageRecordConsumer(slowLaneKafkaConsumer(), kafkaMessageRecordProcessor, topic, pollTimeout);
+    }
+
+    @Bean
+    public Consumer<RequestCorrelationId, KafkaMessageRecord> slowLaneKafkaConsumer() {
         Consumer<RequestCorrelationId, KafkaMessageRecord> consumer = new KafkaConsumer<>(consumerConfigs());
 
         consumer.subscribe(Collections.singletonList(topic));
