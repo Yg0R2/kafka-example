@@ -22,6 +22,7 @@ import org.springframework.kafka.test.rule.KafkaEmbedded;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import yg0r2.kafka.domain.KafkaMessageRecord;
+import yg0r2.kafka.domain.Request;
 import yg0r2.kafka.domain.RequestCorrelationId;
 import yg0r2.kafka.processor.KafkaMessageRecordProcessor;
 import yg0r2.kafka.producer.KafkaMessageRecordProducer;
@@ -54,7 +55,8 @@ public class FastLaneKafkaMessageRecordConsumerTest {
     @Test
     public void testShouldReturnProperResponse() {
         // GIVEN
-        KafkaMessageRecord kafkaMessageRecord = createKafkaMessageRecord("requestData");
+        Request request = createRequest("requestData");
+        KafkaMessageRecord kafkaMessageRecord = createKafkaMessageRecord(request);
         fastLaneKafkaMessageRecordProducer.submitRequest(kafkaMessageRecord);
 
         // WHEN
@@ -68,22 +70,26 @@ public class FastLaneKafkaMessageRecordConsumerTest {
         verify(kafkaMessageRecordProcessor).processRecord(argumentCaptor.capture());
         verifyNoMoreInteractions(kafkaMessageRecordProcessor);
 
-        RequestCorrelationId requestCorrelationId = createRequestCorrelationId(kafkaMessageRecord);
-
-        assertEquals(requestCorrelationId, argumentCaptor.getValue().key());
+        assertEquals(createRequestCorrelationId(request), argumentCaptor.getValue().key());
         assertEquals(kafkaMessageRecord, argumentCaptor.getValue().value());
     }
 
-    private KafkaMessageRecord createKafkaMessageRecord(String request) {
+    private KafkaMessageRecord createKafkaMessageRecord(Request request) {
         return new KafkaMessageRecord.Builder()
-            .withRequestId(UUID.randomUUID())
             .withRequest(request)
-            .withTimestamp(System.nanoTime())
             .build();
     }
 
-    private RequestCorrelationId createRequestCorrelationId(KafkaMessageRecord kafkaMessageRecord) {
-        return new RequestCorrelationId(kafkaMessageRecord.getRequestId(), kafkaMessageRecord.getTimestamp());
+    private Request createRequest(String value) {
+        return new Request.Builder()
+            .withRequestId(UUID.randomUUID())
+            .withTimestamp(System.nanoTime())
+            .withValue(value)
+            .build();
+    }
+
+    private RequestCorrelationId createRequestCorrelationId(Request request) {
+        return new RequestCorrelationId(request.getRequestId(), request.getTimestamp());
     }
 
 }

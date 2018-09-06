@@ -8,6 +8,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 import yg0r2.kafka.domain.KafkaMessageRecord;
+import yg0r2.kafka.domain.Request;
 import yg0r2.kafka.domain.RequestCorrelationId;
 
 @Component
@@ -23,13 +24,13 @@ public class SlowLaneKafkaMessageRecordProducer implements KafkaMessageRecordPro
 
     @Override
     public void submitRequest(KafkaMessageRecord kafkaMessageRecord) {
-        slowLaneKafkaTemplate.send(topic, createRequestCorrelationId(kafkaMessageRecord), kafkaMessageRecord);
+        slowLaneKafkaTemplate.send(topic, createRequestCorrelationId(kafkaMessageRecord.getRequest()), kafkaMessageRecord);
 
         LOGGER.info("Submit request: {} to topic: {}", kafkaMessageRecord, topic);
     }
 
-    private RequestCorrelationId createRequestCorrelationId(KafkaMessageRecord kafkaMessageRecord) {
-        return new RequestCorrelationId(kafkaMessageRecord.getRequestId(), kafkaMessageRecord.getTimestamp());
+    private RequestCorrelationId createRequestCorrelationId(Request request) {
+        return new RequestCorrelationId(request.getRequestId(), request.getTimestamp());
     }
 
 }
