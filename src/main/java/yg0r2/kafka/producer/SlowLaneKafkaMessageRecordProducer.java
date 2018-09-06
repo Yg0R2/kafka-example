@@ -12,7 +12,7 @@ import yg0r2.kafka.domain.Request;
 import yg0r2.kafka.domain.RequestCorrelationId;
 
 @Component
-public class SlowLaneKafkaMessageRecordProducer implements KafkaMessageRecordProducer {
+public class SlowLaneKafkaMessageRecordProducer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SlowLaneKafkaMessageRecordProducer.class);
 
@@ -22,7 +22,6 @@ public class SlowLaneKafkaMessageRecordProducer implements KafkaMessageRecordPro
     @Autowired
     private KafkaTemplate<RequestCorrelationId, KafkaMessageRecord> slowLaneKafkaTemplate;
 
-    @Override
     public void submitRequest(KafkaMessageRecord kafkaMessageRecord) {
         slowLaneKafkaTemplate.send(topic, createRequestCorrelationId(kafkaMessageRecord.getRequest()), kafkaMessageRecord);
 

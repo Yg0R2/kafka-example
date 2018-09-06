@@ -7,12 +7,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
-import yg0r2.kafka.domain.KafkaMessageRecord;
 import yg0r2.kafka.domain.Request;
 import yg0r2.kafka.domain.RequestCorrelationId;
 
 @Component
-public class FastLaneKafkaMessageRecordProducer implements KafkaMessageRecordProducer {
+public class FastLaneKafkaMessageRecordProducer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FastLaneKafkaMessageRecordProducer.class);
 
@@ -20,13 +19,12 @@ public class FastLaneKafkaMessageRecordProducer implements KafkaMessageRecordPro
     private String topic;
 
     @Autowired
-    private KafkaTemplate<RequestCorrelationId, KafkaMessageRecord> fastLaneKafkaTemplate;
+    private KafkaTemplate<RequestCorrelationId, Request> fastLaneKafkaTemplate;
 
-    @Override
-    public void submitRequest(KafkaMessageRecord kafkaMessageRecord) {
-        fastLaneKafkaTemplate.send(topic, createRequestCorrelationId(kafkaMessageRecord.getRequest()), kafkaMessageRecord);
+    public void submitRequest(Request request) {
+        fastLaneKafkaTemplate.send(topic, createRequestCorrelationId(request), request);
 
-        LOGGER.info("Submit request: {} to topic: {}", kafkaMessageRecord, topic);
+        LOGGER.info("Submit request: {} to topic: {}", request, topic);
     }
 
     private RequestCorrelationId createRequestCorrelationId(Request request) {

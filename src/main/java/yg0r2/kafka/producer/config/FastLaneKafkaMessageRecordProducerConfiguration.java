@@ -11,10 +11,10 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 
-import yg0r2.kafka.domain.KafkaMessageRecord;
+import yg0r2.kafka.domain.Request;
 import yg0r2.kafka.domain.RequestCorrelationId;
-import yg0r2.kafka.serialization.KafkaMessageRecordSerializer;
 import yg0r2.kafka.serialization.RequestCorrelationIdSerializer;
+import yg0r2.kafka.serialization.RequestSerializer;
 
 @Configuration
 public class FastLaneKafkaMessageRecordProducerConfiguration {
@@ -25,15 +25,15 @@ public class FastLaneKafkaMessageRecordProducerConfiguration {
     private String topic;
 
     @Bean
-    public KafkaTemplate<RequestCorrelationId, KafkaMessageRecord> fastLaneKafkaTemplate() {
-        KafkaTemplate<RequestCorrelationId, KafkaMessageRecord> kafkaTemplate = new KafkaTemplate<>(producerFactory());
+    public KafkaTemplate<RequestCorrelationId, Request> fastLaneKafkaTemplate() {
+        KafkaTemplate<RequestCorrelationId, Request> kafkaTemplate = new KafkaTemplate<>(producerFactory());
 
         kafkaTemplate.setDefaultTopic(topic);
 
         return kafkaTemplate;
     }
 
-    private ProducerFactory<RequestCorrelationId, KafkaMessageRecord> producerFactory() {
+    private ProducerFactory<RequestCorrelationId, Request> producerFactory() {
         return new DefaultKafkaProducerFactory<>(producerConfigs());
     }
 
@@ -46,7 +46,7 @@ public class FastLaneKafkaMessageRecordProducerConfiguration {
         properties.put(ProducerConfig.LINGER_MS_CONFIG, 1);
         properties.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, RequestCorrelationIdSerializer.class);
-        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaMessageRecordSerializer.class);
+        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, RequestSerializer.class);
 
         return properties;
     }

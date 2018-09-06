@@ -16,8 +16,8 @@ import yg0r2.kafka.consumer.KafkaMessageRecordConsumer;
 import yg0r2.kafka.domain.KafkaMessageRecord;
 import yg0r2.kafka.domain.RequestCorrelationId;
 import yg0r2.kafka.processor.KafkaMessageRecordProcessor;
-import yg0r2.kafka.serialization.KafkaMessageRecordDeserializer;
 import yg0r2.kafka.serialization.RequestCorrelationIdDeserializer;
+import yg0r2.kafka.serialization.RequestDeserializer;
 
 @Configuration
 public class FastLaneKafkaMessageRecordConsumerConfiguration {
@@ -59,7 +59,7 @@ public class FastLaneKafkaMessageRecordConsumerConfiguration {
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetReset);
 
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, RequestCorrelationIdDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaMessageRecordDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, RequestDeserializer.class);
 
         return props;
     }

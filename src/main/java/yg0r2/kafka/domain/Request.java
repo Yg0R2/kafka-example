@@ -8,6 +8,8 @@ import com.google.common.base.Objects;
 @JsonDeserialize(builder = Request.Builder.class)
 public final class Request {
 
+    public static final Request EMPTY_OBJECT = new Request.Builder().build();
+
     private final UUID requestId;
     private final long timestamp;
     private final String value;

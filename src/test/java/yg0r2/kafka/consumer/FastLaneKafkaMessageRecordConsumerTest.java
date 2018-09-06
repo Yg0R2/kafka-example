@@ -25,7 +25,7 @@ import yg0r2.kafka.domain.KafkaMessageRecord;
 import yg0r2.kafka.domain.Request;
 import yg0r2.kafka.domain.RequestCorrelationId;
 import yg0r2.kafka.processor.KafkaMessageRecordProcessor;
-import yg0r2.kafka.producer.KafkaMessageRecordProducer;
+import yg0r2.kafka.producer.FastLaneKafkaMessageRecordProducer;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -40,7 +40,7 @@ public class FastLaneKafkaMessageRecordConsumerTest {
     @Autowired
     private Consumer<RequestCorrelationId, KafkaMessageRecord> fastLaneKafkaConsumer;
     @Autowired
-    private KafkaMessageRecordProducer fastLaneKafkaMessageRecordProducer;
+    private FastLaneKafkaMessageRecordProducer fastLaneKafkaMessageRecordProducer;
 
     @Mock
     private KafkaMessageRecordProcessor kafkaMessageRecordProcessor;
@@ -56,8 +56,7 @@ public class FastLaneKafkaMessageRecordConsumerTest {
     public void testShouldReturnProperResponse() {
         // GIVEN
         Request request = createRequest("requestData");
-        KafkaMessageRecord kafkaMessageRecord = createKafkaMessageRecord(request);
-        fastLaneKafkaMessageRecordProducer.submitRequest(kafkaMessageRecord);
+        fastLaneKafkaMessageRecordProducer.submitRequest(request);
 
         // WHEN
         doNothing().when(kafkaMessageRecordProcessor).processRecord(isA(ConsumerRecord.class));
@@ -71,7 +70,7 @@ public class FastLaneKafkaMessageRecordConsumerTest {
         verifyNoMoreInteractions(kafkaMessageRecordProcessor);
 
         assertEquals(createRequestCorrelationId(request), argumentCaptor.getValue().key());
-        assertEquals(kafkaMessageRecord, argumentCaptor.getValue().value());
+        assertEquals(createKafkaMessageRecord(request), argumentCaptor.getValue().value());
     }
 
     private KafkaMessageRecord createKafkaMessageRecord(Request request) {
