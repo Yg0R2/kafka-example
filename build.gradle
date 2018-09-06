@@ -1,6 +1,7 @@
 buildscript {
     ext {
-        springBootVersion = '1.5.9.RELEASE'
+        //springBootVersion = '1.5.9.RELEASE'
+        springBootVersion = '1.5.2.RELEASE'
     }
     repositories {
         mavenCentral()
@@ -27,9 +28,21 @@ jar {
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+ext {
+    springKafkaVersion = '1.2.2.RELEASE'
+}
+
 dependencies {
     compile("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
+    //compile("org.springframework.kafka:spring-kafka:${springBootVersion}")
+    compile("org.springframework.kafka:spring-kafka:${springKafkaVersion}")
+    //compile("org.apache.kafka:kafka-clients:1.1.0")
+    compile("org.apache.kafka:kafka_2.11:0.10.2.0") {
+        exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    }
 
     testCompile("org.springframework.boot:spring-boot-starter-test:${springBootVersion}")
+    //testCompile("org.springframework.kafka:spring-kafka-test:${springBootVersion}")
+    testCompile("org.springframework.kafka:spring-kafka-test:${springKafkaVersion}")
     testCompile('junit:junit:4.12')
 }
