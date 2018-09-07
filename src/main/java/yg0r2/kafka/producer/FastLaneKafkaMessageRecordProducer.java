@@ -11,7 +11,7 @@ import yg0r2.kafka.domain.Request;
 import yg0r2.kafka.domain.RequestCorrelationId;
 
 @Component
-public class FastLaneKafkaMessageRecordProducer {
+public class FastLaneKafkaMessageRecordProducer implements KafkaMessageRecordProducer<Request> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FastLaneKafkaMessageRecordProducer.class);
 
@@ -21,6 +21,7 @@ public class FastLaneKafkaMessageRecordProducer {
     @Autowired
     private KafkaTemplate<RequestCorrelationId, Request> fastLaneKafkaTemplate;
 
+    @Override
     public void submit(Request request) {
         fastLaneKafkaTemplate.send(topic, createRequestCorrelationId(request), request);
 

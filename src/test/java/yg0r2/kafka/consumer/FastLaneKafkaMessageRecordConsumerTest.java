@@ -25,7 +25,7 @@ import yg0r2.kafka.domain.KafkaMessageRecord;
 import yg0r2.kafka.domain.Request;
 import yg0r2.kafka.domain.RequestCorrelationId;
 import yg0r2.kafka.processor.KafkaMessageRecordProcessor;
-import yg0r2.kafka.producer.FastLaneKafkaMessageRecordProducer;
+import yg0r2.kafka.producer.KafkaMessageRecordProducer;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -40,7 +40,7 @@ public class FastLaneKafkaMessageRecordConsumerTest {
     @Autowired
     private Consumer<RequestCorrelationId, KafkaMessageRecord> fastLaneKafkaConsumer;
     @Autowired
-    private FastLaneKafkaMessageRecordProducer fastLaneKafkaMessageRecordProducer;
+    private KafkaMessageRecordProducer<Request> fastLaneKafkaMessageRecordProducer;
 
     @Mock
     private KafkaMessageRecordProcessor kafkaMessageRecordProcessor;
