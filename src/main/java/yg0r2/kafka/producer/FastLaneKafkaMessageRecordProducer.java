@@ -21,7 +21,7 @@ public class FastLaneKafkaMessageRecordProducer {
     @Autowired
     private KafkaTemplate<RequestCorrelationId, Request> fastLaneKafkaTemplate;
 
-    public void submitRequest(Request request) {
+    public void submit(Request request) {
         fastLaneKafkaTemplate.send(topic, createRequestCorrelationId(request), request);
 
         LOGGER.info("Submit request: {} to topic: {}", request, topic);

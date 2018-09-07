@@ -41,6 +41,8 @@ dependencies {
 
     compile("com.google.guava:guava:18.0")
 
+    compile("org.aspectj:aspectjweaver:1.8.9")
+
     compile("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
     //compile("org.springframework.kafka:spring-kafka:${springBootVersion}")
     compile("org.springframework.kafka:spring-kafka:${springKafkaVersion}")

@@ -35,7 +35,7 @@ public class FastLaneKafkaMessageRecordConsumerTest {
     private static final long POLL_TIMEOUT = 3000L;
 
     @ClassRule
-    public static KafkaEmbedded embeddedKafka = new KafkaEmbedded(1, true, 1, TOPIC);
+    public static KafkaEmbedded embeddedKafka = new KafkaEmbedded(2, true, 1, TOPIC);
 
     @Autowired
     private Consumer<RequestCorrelationId, KafkaMessageRecord> fastLaneKafkaConsumer;
@@ -56,7 +56,7 @@ public class FastLaneKafkaMessageRecordConsumerTest {
     public void testShouldReturnProperResponse() {
         // GIVEN
         Request request = createRequest("requestData");
-        fastLaneKafkaMessageRecordProducer.submitRequest(request);
+        fastLaneKafkaMessageRecordProducer.submit(request);
 
         // WHEN
         doNothing().when(kafkaMessageRecordProcessor).processRecord(isA(ConsumerRecord.class));
@@ -73,12 +73,6 @@ public class FastLaneKafkaMessageRecordConsumerTest {
         assertEquals(createKafkaMessageRecord(request), argumentCaptor.getValue().value());
     }
 
-    private KafkaMessageRecord createKafkaMessageRecord(Request request) {
-        return new KafkaMessageRecord.Builder()
-            .withRequest(request)
-            .build();
-    }
-
     private Request createRequest(String value) {
         return new Request.Builder()
             .withRequestId(UUID.randomUUID())
@@ -89,6 +83,12 @@ public class FastLaneKafkaMessageRecordConsumerTest {
 
     private RequestCorrelationId createRequestCorrelationId(Request request) {
         return new RequestCorrelationId(request.getRequestId(), request.getTimestamp());
+    }
+
+    private KafkaMessageRecord createKafkaMessageRecord(Request request) {
+        return new KafkaMessageRecord.Builder()
+            .withRequest(request)
+            .build();
     }
 
 }

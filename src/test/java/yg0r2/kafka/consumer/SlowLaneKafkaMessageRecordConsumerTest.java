@@ -57,7 +57,7 @@ public class SlowLaneKafkaMessageRecordConsumerTest {
         // GIVEN
         Request request = createRequest("requestData");
         KafkaMessageRecord kafkaMessageRecord = createKafkaMessageRecord(request);
-        slowLaneKafkaMessageRecordProducer.submitRequest(kafkaMessageRecord);
+        slowLaneKafkaMessageRecordProducer.submit(kafkaMessageRecord);
 
         // WHEN
         doNothing().when(kafkaMessageRecordProcessor).processRecord(isA(ConsumerRecord.class));
@@ -74,18 +74,18 @@ public class SlowLaneKafkaMessageRecordConsumerTest {
         assertEquals(kafkaMessageRecord, argumentCaptor.getValue().value());
     }
 
-    private KafkaMessageRecord createKafkaMessageRecord(Request request) {
-        return new KafkaMessageRecord.Builder()
-                .withRequest(request)
-                .build();
-    }
-
     private Request createRequest(String value) {
         return new Request.Builder()
-                .withRequestId(UUID.randomUUID())
-                .withTimestamp(System.nanoTime())
-                .withValue(value)
-                .build();
+            .withRequestId(UUID.randomUUID())
+            .withTimestamp(System.nanoTime())
+            .withValue(value)
+            .build();
+    }
+
+    private KafkaMessageRecord createKafkaMessageRecord(Request request) {
+        return new KafkaMessageRecord.Builder()
+            .withRequest(request)
+            .build();
     }
 
     private RequestCorrelationId createRequestCorrelationId(Request request) {

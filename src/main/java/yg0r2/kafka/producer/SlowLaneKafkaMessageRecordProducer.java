@@ -22,7 +22,7 @@ public class SlowLaneKafkaMessageRecordProducer {
     @Autowired
     private KafkaTemplate<RequestCorrelationId, KafkaMessageRecord> slowLaneKafkaTemplate;
 
-    public void submitRequest(KafkaMessageRecord kafkaMessageRecord) {
+    public void submit(KafkaMessageRecord kafkaMessageRecord) {
         slowLaneKafkaTemplate.send(topic, createRequestCorrelationId(kafkaMessageRecord.getRequest()), kafkaMessageRecord);
 
         LOGGER.info("Submit request: {} to topic: {}", kafkaMessageRecord, topic);
