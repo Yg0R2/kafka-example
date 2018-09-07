@@ -5,7 +5,17 @@ kafka:
   auto.offset.reset: earliest
   fastLane:
     topic: fast-lane-topic
-    pollTimeout: 1000
+    poll:
+      interval.ms: 1500
+      initialDelay.ms: 3000
+      timeout.ms: 3000
+      pool.size: 6
+      max.records: 1
   slowLane:
     topic: slow-lane-topic
-    pollTimeout: 1000
+    poll:
+      interval.ms: 3000
+      initialDelay.ms: 3000
+      timeout.ms: 6000
+      pool.size: 1
+      max.records: 1

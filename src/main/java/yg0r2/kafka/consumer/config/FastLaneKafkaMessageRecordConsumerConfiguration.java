@@ -9,8 +9,10 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 
 import yg0r2.kafka.consumer.KafkaMessageRecordConsumer;
 import yg0r2.kafka.domain.KafkaMessageRecord;
@@ -30,13 +32,16 @@ public class FastLaneKafkaMessageRecordConsumerConfiguration {
     private String autoOffsetReset;
     @Value("${kafka.fastLane.topic}")
     private String topic;
-    @Value("${kafka.fastLane.pollTimeout}")
+    @Value("${kafka.fastLane.poll.max.records}")
+    private int pollMaxRecords;
+    @Value("${kafka.fastLane.poll.timeout.ms}")
     private long pollTimeout;
 
     @Autowired
     private KafkaMessageRecordProcessor kafkaMessageRecordProcessor;
 
     @Bean
+    @Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public KafkaMessageRecordConsumer fastLaneKafkaMessageRecordConsumer() {
         return new KafkaMessageRecordConsumer(fastLaneKafkaConsumer(), kafkaMessageRecordProcessor, topic, pollTimeout);
     }
@@ -57,6 +62,8 @@ public class FastLaneKafkaMessageRecordConsumerConfiguration {
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetReset);
+
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, pollMaxRecords);
 
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, RequestCorrelationIdDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, RequestDeserializer.class);
