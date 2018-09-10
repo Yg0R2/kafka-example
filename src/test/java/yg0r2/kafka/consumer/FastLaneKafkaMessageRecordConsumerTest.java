@@ -32,7 +32,7 @@ import yg0r2.kafka.producer.KafkaMessageRecordProducer;
 public class FastLaneKafkaMessageRecordConsumerTest {
 
     private static final String TOPIC = "fast-lane-topic";
-    private static final long POLL_TIMEOUT = 3000L;
+    private static final long POLL_TIMEOUT = 5000L;
 
     @ClassRule
     public static KafkaEmbedded embeddedKafka = new KafkaEmbedded(2, true, 1, TOPIC);
