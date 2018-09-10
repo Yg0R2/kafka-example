@@ -16,14 +16,16 @@ import yg0r2.kafka.domain.Request;
 @Component
 public class MockRequestProcessor implements RequestProcessor {
 
-    private static final Map<Request, Integer> TRIES = new HashMap<>();
+    private static final Map<Request, Integer> RETRIES = new HashMap<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultRequestProcessor.class);
 
     @Override
     public void processRequest(Request request) {
-        int tries = TRIES.putIfAbsent(request, 0);
+        int retries = RETRIES.put(request, RETRIES.getOrDefault(request, 0) + 1);
 
-        if (tries < 3) {
+        LOGGER.info("Retries count: {}", retries);
+
+        if (retries < 3) {
             throw new RuntimeException();
         }
 

@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.util.UUID;
@@ -38,7 +39,7 @@ public class KafkaApplicationTest {
     private static final String FAST_LANE_TOPIC = "fast-lane-topic";
     private static final String SLOW_LANE_TOPIC = "slow-lane-topic";
 
-    @Autowired
+    @SpyBean(name = "fastLaneKafkaMessageRecordProducer")
     private KafkaMessageRecordProducer<Request> fastLaneKafkaMessageRecordProducer;
     @SpyBean(name = "fastLaneKafkaConsumer")
     private Consumer<RequestCorrelationId, KafkaMessageRecord> fastLaneKafkaConsumer;
@@ -48,7 +49,7 @@ public class KafkaApplicationTest {
     private Consumer<RequestCorrelationId, KafkaMessageRecord> slowLaneKafkaConsumer;
 
     @ClassRule
-    public static KafkaEmbedded embeddedKafka = new KafkaEmbedded(1, true, 1, FAST_LANE_TOPIC, SLOW_LANE_TOPIC);
+    public static KafkaEmbedded embeddedKafka = new KafkaEmbedded(2, true, 1, FAST_LANE_TOPIC, SLOW_LANE_TOPIC);
 
     @Test
     public void testStartup() {
@@ -60,13 +61,24 @@ public class KafkaApplicationTest {
 
     @Test
     public void testRun() throws InterruptedException {
-        fastLaneKafkaMessageRecordProducer.submit(createRequest("0000000"));
+        Request request = createRequest("0000000");
+
+        fastLaneKafkaMessageRecordProducer.submit(request);
+        fastLaneKafkaMessageRecordProducer.submit(request);
+        fastLaneKafkaMessageRecordProducer.submit(createRequest("1111111"));
+
+        while (true){
+            if (false) {
+                break;
+            }
+        }
 
         Thread.sleep(10000);
 
-        verify(fastLaneKafkaConsumer, atLeastOnce()).poll(anyLong());
-        verify(slowLaneKafkaMessageRecordProducer, atLeastOnce()).submit(any(KafkaMessageRecord.class));
-        verify(slowLaneKafkaConsumer, atLeastOnce()).poll(anyLong());
+        verify(fastLaneKafkaMessageRecordProducer).submit(request);
+        verify(fastLaneKafkaConsumer, times(9)).poll(anyLong());
+        verify(slowLaneKafkaMessageRecordProducer, times(3)).submit(any(KafkaMessageRecord.class));
+        verify(slowLaneKafkaConsumer, times(3)).poll(anyLong());
     }
 
     private Request createRequest(String value) {

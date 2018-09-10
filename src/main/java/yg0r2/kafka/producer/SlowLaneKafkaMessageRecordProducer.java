@@ -24,9 +24,11 @@ public class SlowLaneKafkaMessageRecordProducer implements KafkaMessageRecordPro
 
     @Override
     public void submit(KafkaMessageRecord kafkaMessageRecord) {
-        slowLaneKafkaTemplate.send(topic, createRequestCorrelationId(kafkaMessageRecord.getRequest()), kafkaMessageRecord);
-
         LOGGER.info("Submit request: {} to topic: {}", kafkaMessageRecord, topic);
+
+        slowLaneKafkaTemplate.send(topic, createRequestCorrelationId(kafkaMessageRecord.getRequest()), kafkaMessageRecord);
+//        slowLaneKafkaTemplate.send(topic, createRequestCorrelationId(kafkaMessageRecord.getRequest()), kafkaMessageRecord);
+//        slowLaneKafkaTemplate.send(topic, createRequestCorrelationId(kafkaMessageRecord.getRequest()), kafkaMessageRecord);
     }
 
     private RequestCorrelationId createRequestCorrelationId(Request request) {

@@ -26,8 +26,12 @@ public class KafkaMessageRecordConsumer {
     public void poll() {
         ConsumerRecords<RequestCorrelationId, KafkaMessageRecord> consumerRecords = kafkaConsumer.poll(pollTimeout);
 
-        consumerRecords.records(topic)
-            .forEach(kafkaMessageRecordProcessor::processRecord);
+        if (!consumerRecords.isEmpty()) {
+            consumerRecords.records(topic)
+                .forEach(kafkaMessageRecordProcessor::processRecord);
+        }
+
+        kafkaConsumer.commitSync();
     }
 
 }

@@ -3,6 +3,9 @@ kafka:
   brokers: ${kafka.bootstrap-servers}
   group.id: test
   auto.offset.reset: earliest
+  retry:
+    initial.retention.seconds: 5
+    retention.max.seconds: 30
   fastLane:
     topic: fast-lane-topic
     poll:

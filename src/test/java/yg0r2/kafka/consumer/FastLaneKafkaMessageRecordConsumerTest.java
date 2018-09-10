@@ -1,30 +1,22 @@
 package yg0r2.kafka.consumer;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.util.UUID;
 
-import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.kafka.test.rule.KafkaEmbedded;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import yg0r2.kafka.domain.KafkaMessageRecord;
+import yg0r2.external.RequestProcessor;
 import yg0r2.kafka.domain.Request;
-import yg0r2.kafka.domain.RequestCorrelationId;
-import yg0r2.kafka.processor.KafkaMessageRecordProcessor;
 import yg0r2.kafka.producer.KafkaMessageRecordProducer;
 
 @RunWith(SpringRunner.class)
@@ -38,39 +30,26 @@ public class FastLaneKafkaMessageRecordConsumerTest {
     public static KafkaEmbedded embeddedKafka = new KafkaEmbedded(2, true, 1, TOPIC);
 
     @Autowired
-    private Consumer<RequestCorrelationId, KafkaMessageRecord> fastLaneKafkaConsumer;
-    @Autowired
     private KafkaMessageRecordProducer<Request> fastLaneKafkaMessageRecordProducer;
 
-    @Mock
-    private KafkaMessageRecordProcessor kafkaMessageRecordProcessor;
-
-    private KafkaMessageRecordConsumer underTest;
-
-    @Before
-    public void setUp() {
-        underTest = new KafkaMessageRecordConsumer(fastLaneKafkaConsumer, kafkaMessageRecordProcessor, TOPIC, POLL_TIMEOUT);
-    }
+    @SpyBean(name = "mockRequestProcessor")
+    private RequestProcessor requestProcessor;
 
     @Test
-    public void testShouldReturnProperResponse() {
+    public void testShouldReturnProperResponse() throws InterruptedException {
         // GIVEN
         Request request = createRequest("requestData");
         fastLaneKafkaMessageRecordProducer.submit(request);
 
         // WHEN
-        doNothing().when(kafkaMessageRecordProcessor).processRecord(isA(ConsumerRecord.class));
+        doNothing().when(requestProcessor).processRequest(request);
 
-        underTest.poll();
+        // waiting for scheduled poll
+        Thread.sleep(5000);
 
         // THEN
-        ArgumentCaptor<ConsumerRecord> argumentCaptor = ArgumentCaptor.forClass(ConsumerRecord.class);
-
-        verify(kafkaMessageRecordProcessor).processRecord(argumentCaptor.capture());
-        verifyNoMoreInteractions(kafkaMessageRecordProcessor);
-
-        assertEquals(createRequestCorrelationId(request), argumentCaptor.getValue().key());
-        assertEquals(createKafkaMessageRecord(request), argumentCaptor.getValue().value());
+        verify(requestProcessor).processRequest(request);
+        verifyNoMoreInteractions(requestProcessor);
     }
 
     private Request createRequest(String value) {
@@ -78,16 +57,6 @@ public class FastLaneKafkaMessageRecordConsumerTest {
             .withRequestId(UUID.randomUUID())
             .withTimestamp(System.nanoTime())
             .withValue(value)
-            .build();
-    }
-
-    private RequestCorrelationId createRequestCorrelationId(Request request) {
-        return new RequestCorrelationId(request.getRequestId(), request.getTimestamp());
-    }
-
-    private KafkaMessageRecord createKafkaMessageRecord(Request request) {
-        return new KafkaMessageRecord.Builder()
-            .withRequest(request)
             .build();
     }
 
