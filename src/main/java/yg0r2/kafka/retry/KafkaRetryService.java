@@ -33,13 +33,11 @@ public class KafkaRetryService {
         RetryContext retryContext = createRetryContext(kafkaMessageRecord, throwable);
         Request request = kafkaMessageRecord.getRequest();
 
-        if (canRescheduleFailedRetry(retryContext)) {
-            LOGGER.info("Resubmitting failed request request={}", request);
+        LOGGER.error("Request procession failed", throwable);
 
+        if (canRescheduleFailedRetry(retryContext)) {
             slowLaneKafkaMessageRecordProducer.submit(createUpdatedKafkaMessageRecord(kafkaMessageRecord, retryContext));
         } else {
-            LOGGER.error("Request procession failed", throwable);
-
             LOGGER.info("Dropping email request request={}", request);
         }
     }

@@ -8,6 +8,8 @@ kafka:
     retention.max.seconds: 30
   fastLane:
     topic: fast-lane-topic
+    session.timeout.ms: 6000
+    heartbeat.interval.ms: 5000
     poll:
       interval.ms: 1500
       initialDelay.ms: 3000
@@ -16,6 +18,8 @@ kafka:
       max.records: 1
   slowLane:
     topic: slow-lane-topic
+    session.timeout.ms: 12000
+    heartbeat.interval.ms: 10000
     poll:
       interval.ms: 3000
       initialDelay.ms: 3000

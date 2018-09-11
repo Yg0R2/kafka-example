@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -14,7 +13,6 @@ import org.apache.kafka.clients.consumer.Consumer;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Import;
@@ -41,31 +39,31 @@ public class KafkaApplicationTest {
 
     @SpyBean(name = "fastLaneKafkaMessageRecordProducer")
     private KafkaMessageRecordProducer<Request> fastLaneKafkaMessageRecordProducer;
-    @SpyBean(name = "fastLaneKafkaConsumer")
-    private Consumer<RequestCorrelationId, KafkaMessageRecord> fastLaneKafkaConsumer;
+//    @SpyBean(name = "fastLaneKafkaConsumer")
+//    private Consumer<RequestCorrelationId, KafkaMessageRecord> fastLaneKafkaConsumer;
     @SpyBean(name = "slowLaneKafkaMessageRecordProducer")
     private KafkaMessageRecordProducer<KafkaMessageRecord> slowLaneKafkaMessageRecordProducer;
-    @SpyBean(name = "slowLaneKafkaConsumer")
-    private Consumer<RequestCorrelationId, KafkaMessageRecord> slowLaneKafkaConsumer;
+//    @SpyBean(name = "slowLaneKafkaConsumer")
+//    private Consumer<RequestCorrelationId, KafkaMessageRecord> slowLaneKafkaConsumer;
 
     @ClassRule
-    public static KafkaEmbedded embeddedKafka = new KafkaEmbedded(2, true, 1, FAST_LANE_TOPIC, SLOW_LANE_TOPIC);
+    public static KafkaEmbedded embeddedFastLaneKafka = new KafkaEmbedded(4, true, 2, FAST_LANE_TOPIC, SLOW_LANE_TOPIC);
 
     @Test
     public void testStartup() {
-        assertEquals(1, embeddedKafka.getKafkaServers().size());
-        assertEquals(1, embeddedKafka.getBrokerAddresses().length);
-        assertEquals(1, embeddedKafka.getPartitionsPerTopic());
-        assertNotNull(embeddedKafka.getZookeeper());
+        assertEquals(1, embeddedFastLaneKafka.getKafkaServers().size());
+        assertEquals(1, embeddedFastLaneKafka.getBrokerAddresses().length);
+        assertEquals(1, embeddedFastLaneKafka.getPartitionsPerTopic());
+        assertNotNull(embeddedFastLaneKafka.getZookeeper());
     }
 
     @Test
     public void testRun() throws InterruptedException {
         Request request = createRequest("0000000");
+        fastLaneKafkaMessageRecordProducer.submit(request);
 
-        fastLaneKafkaMessageRecordProducer.submit(request);
-        fastLaneKafkaMessageRecordProducer.submit(request);
-        fastLaneKafkaMessageRecordProducer.submit(createRequest("1111111"));
+        Request request2 = createRequest("1111111");
+        //fastLaneKafkaMessageRecordProducer.submit(request2);
 
         while (true){
             if (false) {
@@ -76,9 +74,9 @@ public class KafkaApplicationTest {
         Thread.sleep(10000);
 
         verify(fastLaneKafkaMessageRecordProducer).submit(request);
-        verify(fastLaneKafkaConsumer, times(9)).poll(anyLong());
+        //verify(fastLaneKafkaConsumer, times(9)).poll(anyLong());
         verify(slowLaneKafkaMessageRecordProducer, times(3)).submit(any(KafkaMessageRecord.class));
-        verify(slowLaneKafkaConsumer, times(3)).poll(anyLong());
+        //verify(slowLaneKafkaConsumer, times(3)).poll(anyLong());
     }
 
     private Request createRequest(String value) {

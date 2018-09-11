@@ -32,6 +32,10 @@ public class SlowLaneKafkaMessageRecordConsumerConfiguration {
     private String autoOffsetReset;
     @Value("${kafka.slowLane.topic}")
     private String topic;
+    @Value("${kafka.slowLane.session.timeout.ms}")
+    private int sessionTimeout;
+    @Value("${kafka.slowLane.heartbeat.interval.ms}")
+    private int heartbeatInterval;
     @Value("${kafka.slowLane.poll.max.records}")
     private int pollMaxRecords;
     @Value("${kafka.slowLane.poll.timeout.ms}")
@@ -62,6 +66,8 @@ public class SlowLaneKafkaMessageRecordConsumerConfiguration {
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetReset);
+        props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, sessionTimeout);
+        props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, heartbeatInterval);
 
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, pollMaxRecords);
 
